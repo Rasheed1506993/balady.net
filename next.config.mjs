@@ -10,9 +10,14 @@ const nextConfig = {
     unoptimized: true,
   },
   experimental: {
-    allowedDevOrigins: ['http://192.168.1.38:3000'], // فقط أثناء التطوير
+    allowedDevOrigins: ['*'], // فقط أثناء التطوير
   },
 
-}
+};
 
 export default nextConfig
+
+
+
+
+

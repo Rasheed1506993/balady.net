@@ -30,9 +30,8 @@ export default function RootLayout({
     <html lang="ar" dir="rtl" className={inter.className}>
       <head>
         {/* يمكنك إضافة أي عناصر إضافية للـ head هنا */}
-        <link href="https://yabalady.net/files/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
-        <link href="https://yabalady.net/files/css/app.min.css" rel="stylesheet" type="text/css" />
-      
+<link href="/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+<link href="/css/app.min.css" rel="stylesheet" type="text/css" />
       </head>
       <body>
         <ThemeProvider

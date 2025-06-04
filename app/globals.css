@@ -14,18 +14,11 @@
 
 /*
  * تحديد الخط الافتراضي لعنصر الـ body.
- * 'Somar' هو الخط الأساسي، مع Arial و Helvetica كخطوط احتياطية.
+ * 'Cairo Arabic' هو الخط الأساسي، مع Arial و Helvetica كخطوط احتياطية.
 */
 body {
-  font-family: 'Somar', Arial, Helvetica, sans-serif;
+  font-family: 'Cairo', Arial, Helvetica, sans-serif;
 }
-
-/*
- * تعريف فئات CSS مخصصة ضمن طبقة الأدوات المساعدة في Tailwind CSS.
- * يمكن استخدام هذه الفئات مباشرة في HTML.
-*/
-
-
 
 @layer utilities {
   .text-balance {
@@ -40,18 +33,20 @@ body {
   .font-doto { /* أضف هذه الفئة */
     font-family: 'Doto', sans-serif;
   }
-  
-    .font-hel { /* أضف هذه الفئة */
+
+  .font-hel { /* أضف هذه الفئة */
     font-family: 'hel', sans-serif;
     font-weight: 400;
   }
-  
-      .font-hel-sm { /* أضف هذه الفئة */
+
+  .font-hel-sm { /* أضف هذه الفئة */
     font-family: 'hel', sans-serif;
     font-weight: 700;
   }
-  
-  
+    .Cairo { /* أضف هذه الفئة */
+    font-family: 'Cairo', sans-serif;
+  }
+
   .font-noto-thin {
     font-family: 'Noto Kufi Arabic', sans-serif;
     font-weight: 100;
@@ -67,7 +62,7 @@ body {
   .font-noto-regular { /* أو .font-noto-normal */
     font-family: 'Noto Kufi Arabic', sans-serif;
     font-weight: 400;
-    
+
   }
   .font-noto-medium {
     font-family: 'Noto Kufi Arabic', sans-serif;
@@ -76,9 +71,8 @@ body {
   .font-noto-semibold {
     font-family: 'Noto Kufi Arabic', sans-serif;
     font-weight: 600;
-
   }
-  
+
   .font-noto-extrabold {
     font-family: 'Noto Kufi Arabic', sans-serif;
     font-weight: 800;
@@ -87,18 +81,12 @@ body {
     font-family: 'Noto Kufi Arabic', sans-serif;
     font-weight: 900;
   }
-  
-  
+
   .font-size-20 {
-  font-size: 20px;
+    font-size: 20px;
+  }
 }
 
-}
-/*
- * تعريف متغيرات CSS (Design Tokens) لسمات التصميم الأساسية.
- * تشمل ألوان الخلفية، النص، البطاقات، وألوان الحالة (Primary, Secondary, etc.).
- * توفر دعماً للموضوع الفاتح والداكن.
-*/
 @layer base {
   /* متغيرات الوضع الفاتح (Light Mode) */
   :root {
@@ -209,7 +197,14 @@ body {
     font-display: swap;
   }
 
-    @font-face {
+  /* تم إضافة هذا التعريف لخط Cairo Arabic */
+  @font-face {
+    font-family: 'Cairo';
+    src: url("/fonts/Cairo-VariableFont_slnt_wght.ttf") format('truetype');
+    
+  }
+
+  @font-face {
     font-family: 'Doto';
     src: url("/fonts/static/NotoKufiArabic-Bold.ttf");
     font-weight: normal; /* أو bold حسب الخط */
@@ -264,18 +259,13 @@ body {
     font-style: normal;
     font-display: swap;
   }
-      @font-face {
+  @font-face {
     font-family: 'hel';
     src: url("/fonts/Helvetica.ttf");
     font-style: normal;
     font-display: swap; /* لتحسين عرض الخط أثناء التحميل */
   }
-
-	
 }
-
-
-
 
 /*
  * إعدادات Tailwind CSS المخصصة للثيم.
@@ -296,7 +286,7 @@ body {
 
   body {
     @apply bg-background text-foreground; /* تطبيق ألوان الخلفية والنص الأساسية */
-    font-family: 'Somar', Arial, sans-serif; /* تأكيد خط الجسم */
+    font-family: 'Cairo Arabic', Arial, sans-serif; /* تم تحديث الخط هنا */
   }
 }
 
@@ -319,7 +309,7 @@ body {
 
   /* تأكيد الخط لـ body في الطباعة */
   body {
-    font-family: 'Somar', sans-serif !important;
+    font-family: 'Cairo Arabic', sans-serif !important; /* تم تحديث الخط هنا */
   }
 
   /* إخفاء العناصر غير المرغوب فيها في الطباعة (مثل الأزرار أو عناصر التنقل) */
