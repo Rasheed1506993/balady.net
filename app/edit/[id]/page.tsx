@@ -78,22 +78,26 @@ export default function EditCertificate() {
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
+  const municipalityLogos = {
+  "أمانة منطقة الرياض": "riyadh.jpg",
+  "أمانة محافظة جدة": "jeddah.jpg",
+  "أمانة العاصمة المقدسة": "makah.jpg",
+  "أمانة منطقة المدينة المنورة": "madinah.png",
+  "أمانة محافظة الطائف": "Taif.jpg",
+  "أمانة محافظة نجران": "Najran.jpg",
+  "أمانة منطقة عسير": "assir.jpg"
+}
+
   const handleTypeserChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedValue = e.target.value
-    let logo = ""
+  const selectedValue = e.target.value
+  const logo = municipalityLogos[selectedValue] || ""
 
-    if (selectedValue === "أمانة محافظة الطائف") {
-      logo = "Taif.jpg"
-    } else if (selectedValue === "أمانة محافظة نجران") {
-      logo = "Najran.jpg"
-    }
-
-    setFormData(prev => ({
-      ...prev,
-      typeser: selectedValue,
-      thelogo: logo,
-    }))
-  }
+  setFormData(prev => ({
+    ...prev,
+    typeser: selectedValue,
+    thelogo: logo,
+  }))
+}
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -167,16 +171,21 @@ export default function EditCertificate() {
               <div className="space-y-2">
                 <Label htmlFor="typeser">الأمانة</Label>
                 <select
-                  id="typeser"
-                  name="typeser"
-                  value={formData.typeser}
-                  onChange={handleTypeserChange}
-                  required
-                  className="w-full p-2 border rounded-md text-right"
-                >
-                  <option value="أمانة محافظة الطائف">أمانة محافظة الطائف</option>
-                  <option value="أمانة محافظة نجران">أمانة محافظة نجران</option>
-                </select>
+  id="typeser"
+  name="typeser"
+  value={formData.typeser}
+  onChange={handleTypeserChange}
+  required
+  className="w-full p-2 border rounded-md text-right"
+>
+  <option value="أمانة منطقة الرياض">أمانة منطقة الرياض</option>
+  <option value="أمانة محافظة جدة">أمانة محافظة جدة</option>
+  <option value="أمانة العاصمة المقدسة">أمانة العاصمة المقدسة</option>
+  <option value="أمانة منطقة المدينة المنورة">أمانة منطقة المدينة المنورة</option>
+  <option value="أمانة محافظة الطائف">أمانة محافظة الطائف</option>
+  <option value="أمانة محافظة نجران">أمانة محافظة نجران</option>
+  <option value="أمانة منطقة عسير">أمانة منطقة عسير</option>
+</select>
               </div>
               
               <div className="space-y-2">

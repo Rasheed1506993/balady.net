@@ -1,8 +1,9 @@
 import type React from "react"
 import "./globals.css"
-import type { Metadata, Viewport } from "next" // أضفنا استيراد Viewport
+import type { Metadata, Viewport } from "next"
 import { Inter } from "next/font/google"
 import { ThemeProvider } from "@/components/theme-provider"
+import AuthGuard from "@/components/AuthGuard" // تأكد من استيراده كـ default import
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -12,13 +13,11 @@ export const metadata: Metadata = {
   generator: "v0.dev",
 }
 
-// أضفنا كائن Viewport الجديد
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  // يمكنك إضافة المزيد من الخصائص إذا لزم الأمر
 }
 
 export default function RootLayout({
@@ -29,9 +28,8 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl" className={inter.className}>
       <head>
-        {/* يمكنك إضافة أي عناصر إضافية للـ head هنا */}
-<link href="/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
-<link href="/css/app.min.css" rel="stylesheet" type="text/css" />
+        <link href="/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+        <link href="/css/app.min.css" rel="stylesheet" type="text/css" />
       </head>
       <body>
         <ThemeProvider
@@ -40,7 +38,9 @@ export default function RootLayout({
           enableSystem={false}
           forcedTheme="light"
         >
-          {children}
+          <AuthGuard>
+            {children}
+          </AuthGuard>
         </ThemeProvider>
       </body>
     </html>

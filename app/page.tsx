@@ -4,23 +4,55 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { PlusCircle, FileText, Search, BarChart2, AlertCircle } from "lucide-react"
+import { PlusCircle, FileText, Search, BarChart2, AlertCircle, LogOut } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { getSupabaseClient } from "@/lib/supabase"
+import { useRouter } from "next/navigation"
 
 export default function Home() {
   const [showEnvWarning, setShowEnvWarning] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
-    // التحقق من توفر متغيرات البيئة
-    const client = getSupabaseClient()
-    if (!client) {
-      setShowEnvWarning(true)
+    const checkAuth = async () => {
+      const client = getSupabaseClient()
+      if (!client) {
+        setShowEnvWarning(true)
+        return
+      }
+
+      const { data: { session } } = await client.auth.getSession()
+      setIsLoggedIn(!!session)
     }
+
+    checkAuth()
   }, [])
+
+  const handleLogout = async () => {
+    const client = getSupabaseClient()
+    if (client) {
+      await client.auth.signOut()
+      router.push("/login")
+    }
+  }
 
   return (
     <div className="Cairo max-w-4xl mx-auto p-4" dir="rtl">
+      {/* زر تسجيل الخروج في الزاوية العلوية اليسرى */}
+      {isLoggedIn && (
+        <div className="flex justify-end mb-4">
+          <Button
+            onClick={handleLogout}
+            variant="outline"
+            className="flex items-center gap-2 text-red-600 border-red-200 hover:bg-red-50"
+          >
+            <LogOut className="h-4 w-4" />
+            تسجيل الخروج
+          </Button>
+        </div>
+      )}
+
       {showEnvWarning && (
         <Alert variant="destructive" className="mb-6">
           <AlertCircle className="h-4 w-4" />
@@ -91,7 +123,6 @@ export default function Home() {
               لوحة التحكم
             </Button>
           </Link>
-          
         </div>
       </div>
 

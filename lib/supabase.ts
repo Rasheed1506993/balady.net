@@ -151,55 +151,95 @@ export async function createCertificate(
   }
 }
 
-// تحديث دالة جلب الصورة من Supabase
+// دالة محسنة لجلب الشهادة بواسطة المعرف مع تحسينات الأداء
 export async function getCertificateById(id: string): Promise<Certificate | null> {
+  // التحقق من صحة المعرف قبل أي عملية
+  if (!id || typeof id !== 'string') {
+    console.error('Invalid certificate ID');
+    return null;
+  }
+
   try {
-    const client = getSupabaseClient()
+    const client = getSupabaseClient();
     if (!client) {
-      throw new Error("Supabase client not available")
+      throw new Error("Supabase client not available");
     }
 
-    const { data, error } = await client.from("certificates").select("*").eq("id", id).single()
+    // استخدام استعلام أكثر كفاءة مع تحديد الحقول المطلوبة فقط
+    const { data, error } = await client
+      .from("certificates")
+      .select(`
+        id,
+        typeser,
+        thelogo,
+        name,
+        id_number,
+        nationality,
+        profession,
+        certificate_number,
+        issue_date,
+        expiry_date,
+        program_type,
+        program_end_date,
+        photo_url,
+        qr_code_url,
+        created_at,
+        updated_at,
+        facility_name,
+        facility_number,
+        license_number,
+        gender,
+        municipality,
+        issue_date_gregorian,
+        expiry_date_gregorian
+      `)
+      .eq("id", id)
+      .single()
+      .throwOnError(); // تحويل الأخطاء تلقائياً إلى exceptions
 
     if (error) {
-      console.error("Error fetching certificate:", error)
-      return null
+      throw error;
     }
 
-    // التحقق من وجود روابط الصور وإضافة معلومات الوصول العام إذا لزم الأمر
-    if (data) {
-      // التأكد من أن روابط الصور تحتوي على معلومات الوصول العام
-      if (data.photo_url && !data.photo_url.includes("?")) {
-        try {
-          const { data: publicUrlData } = client.storage
-            .from("certificates")
-            .getPublicUrl(data.photo_url.split("/").pop() || "")
-          data.photo_url = publicUrlData.publicUrl
-        } catch (e) {
-          console.error("Error getting public URL for photo:", e)
-        }
-      }
-
-      if (data.qr_code_url && !data.qr_code_url.includes("?")) {
-        try {
-          const { data: publicUrlData } = client.storage
-            .from("certificates")
-            .getPublicUrl(data.qr_code_url.split("/").pop() || "")
-          data.qr_code_url = publicUrlData.publicUrl
-        } catch (e) {
-          console.error("Error getting public URL for QR code:", e)
-        }
-      }
+    if (!data) {
+      return null;
     }
 
-    return data
+    // تحسين معالجة روابط الصور
+    const processImageUrl = async (url: string | null | undefined) => {
+      if (!url || url.includes("?")) return url;
+      
+      try {
+        const fileName = url.split("/").pop() || "";
+        const { data: publicUrlData } = client.storage
+          .from("certificates")
+          .getPublicUrl(fileName);
+        return publicUrlData.publicUrl;
+      } catch (e) {
+        console.error("Error processing image URL:", e);
+        return url;
+      }
+    };
+
+    // معالجة روابط الصور بشكل متوازي
+    const [photoUrl, qrCodeUrl] = await Promise.all([
+      processImageUrl(data.photo_url),
+      processImageUrl(data.qr_code_url)
+    ]);
+
+    return {
+      ...data,
+      photo_url: photoUrl || data.photo_url,
+      qr_code_url: qrCodeUrl || data.qr_code_url
+    };
+
   } catch (error) {
-    console.error("Error in getCertificateById:", error)
-    return null
+    console.error("Error in getCertificateById:", error);
+    return null;
   }
 }
-
 // دالة للحصول على جميع الشهادات
+
 export async function getAllCertificates(): Promise<Certificate[]> {
   try {
     const client = getSupabaseClient()
@@ -209,7 +249,7 @@ export async function getAllCertificates(): Promise<Certificate[]> {
     }
 
     const { data, error } = await client.from("certificates").select("*").order("created_at", { ascending: false })
-
+    
     if (error) {
       console.error("Error fetching certificates:", error)
       return []
@@ -221,7 +261,6 @@ export async function getAllCertificates(): Promise<Certificate[]> {
     return []
   }
 }
-
 
 export async function updateCertificate(
   id: string,
@@ -329,4 +368,37 @@ export async function deleteCertificate(id: string): Promise<boolean> {
     console.error("Error in deleteCertificate:", error);
     return false;
   }
+}
+
+
+
+// دالة لتسجيل الدخول
+export async function signIn(email: string, password: string) {
+  const client = getSupabaseClient();
+  if (!client) return { error: { message: "Supabase client not available" } };
+
+  const { data, error } = await client.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  return { data, error };
+}
+
+// دالة لتسجيل الخروج
+export async function signOut() {
+  const client = getSupabaseClient();
+  if (!client) return { error: { message: "Supabase client not available" } };
+
+  const { error } = await client.auth.signOut();
+  return { error };
+}
+
+// دالة للتحقق من حالة المصادقة
+export async function getSession() {
+  const client = getSupabaseClient();
+  if (!client) return { data: { session: null }, error: { message: "Supabase client not available" } };
+
+  const { data, error } = await client.auth.getSession();
+  return { data, error };
 }

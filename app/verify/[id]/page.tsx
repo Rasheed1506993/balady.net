@@ -8,7 +8,6 @@ import { AlertCircle, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { getCertificateById, type Certificate } from "@/lib/supabase"
-import { MainMenu } from "@/components/main-menu"
 import { NavbarBalady } from "@/components/navbar-menu"
 
 export default function VerifyCertificate() {
@@ -32,38 +31,46 @@ export default function VerifyCertificate() {
       }
     };
 
-    // تشغيل مرة واحدة عند التحميل لضبط الحالة الأولية
     handleScroll();
-    
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   useEffect(() => {
+    let isMounted = true;
+    const controller = new AbortController();
+
     async function fetchCertificate() {
       try {
-        setIsLoading(true)
-        const certificate = await getCertificateById(id)
-
+        setIsLoading(true);
+        const certificate = await getCertificateById(id);
+        
+        if (!isMounted) return;
+        
         if (!certificate) {
-          setError("لم يتم العثور على الشهادة المطلوبة")
-          return
+          setError("لم يتم العثور على الشهادة المطلوبة");
+          return;
         }
 
-        setCertificateData(certificate)
-        setIsValid(true)
+        setCertificateData(certificate);
+        setIsValid(true);
       } catch (err) {
-        console.error("Error fetching certificate:", err)
-        setError("حدث خطأ أثناء جلب بيانات الشهادة")
+        if (isMounted) {
+          console.error("Error fetching certificate:", err);
+          setError("حدث خطأ أثناء جلب بيانات الشهادة");
+        }
       } finally {
-        setIsLoading(false)
+        if (isMounted) setIsLoading(false);
       }
     }
 
-    if (id) {
-      fetchCertificate()
-    }
-  }, [id])
+    if (id) fetchCertificate();
+
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
+  }, [id]);
 
   if (isLoading) {
     return (
@@ -71,7 +78,7 @@ export default function VerifyCertificate() {
         <div className="flex flex-col items-center">
           <div className="mb-4 animate-bounce">
             <img 
-              src="https://apps.balady.gov.sa/BALADYCDN/Content//images/logo.svg" 
+              src="/images/logo.svg" 
               alt="logo" 
               className="w-32 h-auto"
             />
@@ -104,7 +111,7 @@ export default function VerifyCertificate() {
     <div className="min-h-screen bg-[#f0f4f5] flex flex-col" dir="rtl">
       <NavbarBalady />
       
-    <div className={`bg-white space-y-2 ${isSticky ? 'fixed top-0 left-0 right-0 z-50 shadow-md' : ''}`}>
+      <div className={`bg-white space-y-2 ${isSticky ? 'fixed top-0 left-0 right-0 z-50 shadow-md' : ''}`}>
         <div className="container p-lg-0">
           <div className="px-3 pb-2 px-md-0 d-flex flex-column flex-md-row align-items-md-center justify-content-between page-btns-top-fixed">
             <div className="page-title-content">
@@ -132,53 +139,55 @@ export default function VerifyCertificate() {
                     </div>
                   </div>
 
-<div className="row">
-  <div className="col-md-12 text-center">
-    <Image 
-      width={150} 
-      height={200} 
-      className="inline-block"
-      src={certificateData.photo_url || "/images/photo.png"} 
-      style={{ margin: "20px" }}
-      alt="صورة الشهادة"
-    />
-  </div>
-</div>
+                  <div className="row">
+                    <div className="col-md-12 text-center">
+                      <Image 
+                        width={150} 
+                        height={200} 
+                        className="inline-block"
+                        src={certificateData.photo_url || "/images/photo.png"} 
+                        alt="صورة الشهادة"
+                        priority
+                        loading="eager"
+                        style={{ margin: "20px" }}
+                      />
+                    </div>
+                  </div>
 
-<div className="row">
-  {[
-    { label: "الامانة", value: certificateData.typeser || "امانة محافظة الطائف" },
-    { label: "البلدية", value: certificateData.municipality || "بلدية بعشيرة" },
-    { label: "الاسم", value: certificateData.name },
-    { label: "رقم الهوية", value: certificateData.id_number },
-    { label: "الجنس", value: certificateData.gender || "ذكر" },
-    { label: "الجنسية", value: certificateData.nationality },
-    { label: "رقم الشهادة الصحية", value: certificateData.certificate_number },
-    { label: "المهنة", value: certificateData.profession },
-    { label: "تاريخ إصدار الشهادة الصحية (ميلادي)", value: certificateData.issue_date_gregorian },
-    { label: "تاريخ إصدار الشهادة الصحية (هجري)", value: certificateData.issue_date },
-    { label: "تاريخ انتهاء الشهادة الصحية (ميلادي)", value: certificateData.expiry_date_gregorian },
-    { label: "تاريخ انتهاء الشهادة الصحية (هجري)", value: certificateData.expiry_date },
-    { label: "نوع البرنامج التثقيفي", value: certificateData.program_type },
-    { label: "تاريخ انتهاء البرنامج التثقيفي", value: certificateData.program_end_date },
-    { label: "رقم الرخصة", value: certificateData.license_number || "4100671520174" },
-    { label: "اسم المنشأة", value: certificateData.facility_name || "أسواق نوريم غالب بن شافي الشمس التجارية" },
-    { label: "رقم المنشأة", value: certificateData.facility_number || "7041726855" },
-  ].map((field, index) => (
-    <div className="col-md-6" key={index}>
-      <label className="form-group has-float-label">
-        <input 
-          className="form-control text-xs font-noto-light" 
-          style={{ fontSize: '10px' }}
-          type="text" 
-          value={field.value} 
-          readOnly 
-        />
-        <span className="text-xs font-hel-sm" style={{ fontSize: '15px' }}>{field.label}</span>
-      </label>
-    </div>
-  ))}
-</div>
+                  <div className="row">
+                    {[
+                      { label: "الامانة", value: certificateData.typeser || "اة  " },
+                      { label: "البلدية", value: certificateData.municipality || "بلدية بعشيرة" },
+                      { label: "الاسم", value: certificateData.name },
+                      { label: "رقم الهوية", value: certificateData.id_number },
+                      { label: "الجنس", value: certificateData.gender || "ذكر" },
+                      { label: "الجنسية", value: certificateData.nationality },
+                      { label: "رقم الشهادة الصحية", value: certificateData.certificate_number },
+                      { label: "المهنة", value: certificateData.profession },
+                      { label: "تاريخ إصدار الشهادة الصحية (ميلادي)", value: certificateData.issue_date_gregorian },
+                      { label: "تاريخ إصدار الشهادة الصحية (هجري)", value: certificateData.issue_date },
+                      { label: "تاريخ انتهاء الشهادة الصحية (ميلادي)", value: certificateData.expiry_date_gregorian },
+                      { label: "تاريخ انتهاء الشهادة الصحية (هجري)", value: certificateData.expiry_date },
+                      { label: "نوع البرنامج التثقيفي", value: certificateData.program_type },
+                      { label: "تاريخ انتهاء البرنامج التثقيفي", value: certificateData.program_end_date },
+                      { label: "رقم الرخصة", value: certificateData.license_number || "4100671520174" },
+                      { label: "اسم المنشأة", value: certificateData.facility_name || "أسواق نوريم غالب بن شافي الشمس التجارية" },
+                      { label: "رقم المنشأة", value: certificateData.facility_number || "7041726855" },
+                    ].map((field, index) => (
+                      <div className="col-md-6" key={index}>
+                        <label className="form-group has-float-label">
+                          <input 
+                            className="form-control text-xs font-noto-light" 
+                            style={{ fontSize: '10px' }}
+                            type="text" 
+                            value={field.value} 
+                            readOnly 
+                          />
+                          <span className="text-xs font-hel-sm" style={{ fontSize: '15px' }}>{field.label}</span>
+                        </label>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -186,7 +195,7 @@ export default function VerifyCertificate() {
         </section>
       </div>
       
-            {/* زر الوصول - يظل ثابتًا فوق المحتوى */}
+      {/* زر الوصول - يظل ثابتًا فوق المحتوى */}
       <div className="fixed bottom-6 right-6 z-10">
         <button className="w-30 h-30 rounded-full flex items-center justify-center">
           <Image
@@ -195,10 +204,12 @@ export default function VerifyCertificate() {
             width={70}
             height={70}
             className="object-contain"
+            priority
           />
         </button>
       </div>
-<footer className="footer footer-inner">
+
+      <footer className="footer footer-inner">
   <div className="container-fluid">
     <div className="footer-cont">
       <div className="side-one">
@@ -376,11 +387,6 @@ export default function VerifyCertificate() {
   </div>
 </footer>
 
-
     </div>
   )
-
-
-  
 }
-
