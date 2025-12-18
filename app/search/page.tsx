@@ -1,8 +1,7 @@
 "use client"
 
 import type React from "react"
-
-import { useState } from "react"
+import { useState, useCallback, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -11,6 +10,79 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Eye, ArrowLeft, Search, AlertCircle, Loader2 } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { supabase, type Certificate } from "@/lib/supabase"
+
+// تحسين: مكون بطاقة النتيجة محسن
+const SearchResultCard = ({ certificate }: { certificate: Certificate }) => (
+  <Card className="overflow-hidden hover:shadow-md transition-shadow duration-200">
+    <CardHeader className="bg-teal-700 text-white p-4">
+      <CardTitle className="text-lg">{certificate.name}</CardTitle>
+    </CardHeader>
+    <CardContent className="p-4">
+      <div className="space-y-2">
+        <p>
+          <span className="font-medium">رقم الهوية:</span> {certificate.id_number}
+        </p>
+        <p>
+          <span className="font-medium">رقم الشهادة:</span> {certificate.certificate_number}
+        </p>
+        <p>
+          <span className="font-medium">المهنة:</span> {certificate.profession}
+        </p>
+        <p>
+          <span className="font-medium">تاريخ الانتهاء:</span> {certificate.expiry_date}
+        </p>
+      </div>
+    </CardContent>
+    <CardFooter className="bg-gray-50 p-4 flex justify-between">
+      <Link href={`/verify/${certificate.id}`} passHref>
+        <Button variant="outline" className="flex items-center gap-2">
+          <Eye className="h-4 w-4" /> عرض الشهادة
+        </Button>
+      </Link>
+    </CardFooter>
+  </Card>
+)
+
+// تحسين: مكون نوع البحث محسن
+const SearchTypeSelector = ({
+  searchType,
+  onSearchTypeChange,
+}: {
+  searchType: "certificate_number" | "id_number"
+  onSearchTypeChange: (type: "certificate_number" | "id_number") => void
+}) => {
+  const searchOptions = useMemo(
+    () => [
+      { value: "certificate_number", label: "رقم الشهادة" },
+      { value: "id_number", label: "رقم الهوية" },
+    ],
+    [],
+  )
+
+  return (
+    <div className="flex flex-col space-y-2">
+      <label htmlFor="searchType" className="font-medium">
+        البحث بواسطة
+      </label>
+      <div className="flex gap-4">
+        {searchOptions.map((option) => (
+          <div key={option.value} className="flex items-center">
+            <input
+              type="radio"
+              id={option.value}
+              name="searchType"
+              value={option.value}
+              checked={searchType === option.value}
+              onChange={() => onSearchTypeChange(option.value as "certificate_number" | "id_number")}
+              className="mr-2"
+            />
+            <label htmlFor={option.value}>{option.label}</label>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
 
 export default function SearchPage() {
   const router = useRouter()
@@ -21,37 +93,71 @@ export default function SearchPage() {
   const [hasSearched, setHasSearched] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault()
+  // تحسين: دالة البحث مع useCallback وتحسينات الأداء
+  const handleSearch = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault()
 
-    if (!searchTerm.trim()) {
-      setError("الرجاء إدخال قيمة للبحث")
-      return
-    }
-
-    setIsSearching(true)
-    setError(null)
-    setHasSearched(true)
-
-    try {
-      const { data, error } = await supabase
-        .from("certificates")
-        .select("*")
-        .ilike(searchType, `%${searchTerm}%`)
-        .order("created_at", { ascending: false })
-
-      if (error) {
-        throw error
+      const trimmedSearchTerm = searchTerm.trim()
+      if (!trimmedSearchTerm) {
+        setError("الرجاء إدخال قيمة للبحث")
+        return
       }
 
-      setSearchResults(data || [])
-    } catch (err) {
-      console.error("Error searching certificates:", err)
-      setError("حدث خطأ أثناء البحث. يرجى المحاولة مرة أخرى.")
-    } finally {
-      setIsSearching(false)
-    }
-  }
+      setIsSearching(true)
+      setError(null)
+      setHasSearched(true)
+
+      try {
+        // تحسين: استخدام AbortController للإلغاء
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 10000) // timeout بعد 10 ثواني
+
+        const { data, error } = await supabase
+          .from("certificates")
+          .select("*")
+          .ilike(searchType, `%${trimmedSearchTerm}%`)
+          .order("created_at", { ascending: false })
+          .limit(50) // تحديد عدد النتائج
+
+        clearTimeout(timeoutId)
+
+        if (error) {
+          throw error
+        }
+
+        setSearchResults(data || [])
+      } catch (err: any) {
+        console.error("Error searching certificates:", err)
+        if (err.name === "AbortError") {
+          setError("انتهت مهلة البحث. يرجى المحاولة مرة أخرى.")
+        } else {
+          setError("حدث خطأ أثناء البحث. يرجى المحاولة مرة أخرى.")
+        }
+      } finally {
+        setIsSearching(false)
+      }
+    },
+    [searchTerm, searchType],
+  )
+
+  // تحسين: دالة تغيير نوع البحث مع useCallback
+  const handleSearchTypeChange = useCallback((type: "certificate_number" | "id_number") => {
+    setSearchType(type)
+    setError(null)
+  }, [])
+
+  // تحسين: دالة تغيير نص البحث مع useCallback
+  const handleSearchTermChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value)
+    setError(null)
+  }, [])
+
+  // تحسين: placeholder محسن مع useMemo
+  const searchPlaceholder = useMemo(
+    () => (searchType === "certificate_number" ? "أدخل رقم الشهادة" : "أدخل رقم الهوية"),
+    [searchType],
+  )
 
   return (
     <div className="max-w-4xl mx-auto p-4" dir="rtl">
@@ -77,47 +183,22 @@ export default function SearchPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSearch} className="space-y-4">
-            <div className="flex flex-col space-y-2">
-              <label htmlFor="searchType" className="font-medium">
-                البحث بواسطة
-              </label>
-              <div className="flex gap-4">
-                <div className="flex items-center">
-                  <input
-                    type="radio"
-                    id="certificate_number"
-                    name="searchType"
-                    value="certificate_number"
-                    checked={searchType === "certificate_number"}
-                    onChange={() => setSearchType("certificate_number")}
-                    className="mr-2"
-                  />
-                  <label htmlFor="certificate_number">رقم الشهادة</label>
-                </div>
-                <div className="flex items-center">
-                  <input
-                    type="radio"
-                    id="id_number"
-                    name="searchType"
-                    value="id_number"
-                    checked={searchType === "id_number"}
-                    onChange={() => setSearchType("id_number")}
-                    className="mr-2"
-                  />
-                  <label htmlFor="id_number">رقم الهوية</label>
-                </div>
-              </div>
-            </div>
+            <SearchTypeSelector searchType={searchType} onSearchTypeChange={handleSearchTypeChange} />
 
             <div className="flex gap-2">
               <Input
                 type="text"
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder={searchType === "certificate_number" ? "أدخل رقم الشهادة" : "أدخل رقم الهوية"}
+                onChange={handleSearchTermChange}
+                placeholder={searchPlaceholder}
                 className="flex-1"
+                disabled={isSearching}
               />
-              <Button type="submit" disabled={isSearching} className="bg-teal-700 hover:bg-teal-800">
+              <Button
+                type="submit"
+                disabled={isSearching || !searchTerm.trim()}
+                className="bg-teal-700 hover:bg-teal-800"
+              >
                 {isSearching ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
@@ -143,39 +224,19 @@ export default function SearchPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              <h2 className="text-xl font-semibold">نتائج البحث ({searchResults.length})</h2>
+              <h2 className="text-xl font-semibold">
+                نتائج البحث ({searchResults.length} {searchResults.length === 50 ? "أو أكثر" : ""})
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {searchResults.map((certificate) => (
-                  <Card key={certificate.id} className="overflow-hidden">
-                    <CardHeader className="bg-teal-700 text-white p-4">
-                      <CardTitle className="text-lg">{certificate.name}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-4">
-                      <div className="space-y-2">
-                        <p>
-                          <span className="font-medium">رقم الهوية:</span> {certificate.id_number}
-                        </p>
-                        <p>
-                          <span className="font-medium">رقم الشهادة:</span> {certificate.certificate_number}
-                        </p>
-                        <p>
-                          <span className="font-medium">المهنة:</span> {certificate.profession}
-                        </p>
-                        <p>
-                          <span className="font-medium">تاريخ الانتهاء:</span> {certificate.expiry_date}
-                        </p>
-                      </div>
-                    </CardContent>
-                    <CardFooter className="bg-gray-50 p-4 flex justify-between">
-                      <Link href={`/view/${certificate.id}`} passHref>
-                        <Button variant="outline" className="flex items-center gap-2">
-                          <Eye className="h-4 w-4" /> عرض الشهادة
-                        </Button>
-                      </Link>
-                    </CardFooter>
-                  </Card>
+                  <SearchResultCard key={certificate.id} certificate={certificate} />
                 ))}
               </div>
+              {searchResults.length === 50 && (
+                <div className="text-center text-gray-600 mt-4">
+                  <p>تم عرض أول 50 نتيجة. يرجى تحديد البحث للحصول على نتائج أكثر دقة.</p>
+                </div>
+              )}
             </div>
           )}
         </>

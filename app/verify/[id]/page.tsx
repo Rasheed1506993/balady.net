@@ -1,219 +1,240 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { useParams } from "next/navigation"  
+import React from "react"
+
+import { useState, useEffect, useMemo, useCallback, Suspense } from "react"
+import { useParams } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
-import { AlertCircle, Loader2 } from "lucide-react"
+import { AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { getCertificateById, type Certificate } from "@/lib/supabase"
 import { NavbarBalady } from "@/components/navbar-menu"
 
+// مكون الحقل محسن للأداء مع React.memo
+const CertificateField = React.memo(({ label, value }: { label: string; value: string }) => (
+  <div className="col-md-6">
+    <label className="form-group has-float-label">
+      <input
+        className="form-control text-xs font-noto-light"
+        style={{ fontSize: "10px" }}
+        type="text"
+        value={value || ""}
+        readOnly
+        tabIndex={-1}
+      />
+      <span className="text-xs font-hel-sm" style={{ fontSize: "15px" }}>
+        {label}
+      </span>
+    </label>
+  </div>
+))
+
+CertificateField.displayName = "CertificateField"
+
+// مكون التحميل السريع
+const FastLoading = React.memo(() => (
+    <div className="flex justify-center items-center h-screen bg-white">
+      <div className="relative flex flex-col items-center justify-center">
+        {/* دائرة نبض شفافة */}
+        <span className="absolute inline-flex h-12 w-12 rounded-full bg-grey opacity-75 animate-ping"></span>
+
+        {/* الشعار */}
+        <div className="relative">
+          <Image
+            src="/images/logo.svg"
+            alt="logo"
+            width={200}
+            height={200}
+            priority
+            className="w-48 h-auto"
+          />
+        </div>
+      </div>
+    </div>
+  
+))
+
+FastLoading.displayName = "FastLoading"
+
+// مكون الخطأ السريع
+const ErrorDisplay = React.memo(({ error }: { error: string }) => (
+  <div style={{ background: "#fff", width: "100vw", height: "100vh" }} >
+  </div>
+))
+
+
+ErrorDisplay.displayName = "ErrorDisplay"
+
+// مكون الشهادة الرئيسي
+const CertificateDisplay = React.memo(({ certificateData }: { certificateData: Certificate }) => {
+  // حقول الشهادة مع useMemo
+  const certificateFields = useMemo(
+() => [
+  { label: "الامانة", value: certificateData.typeser || "" },
+  { label: "البلدية", value: certificateData.municipality || "" },
+  { label: "الاسم", value: certificateData.name || "" },
+  { label: "رقم الهوية", value: certificateData.id_number || "" },
+  { label: "الجنس", value: certificateData.gender || "" },
+  { label: "الجنسية", value: certificateData.nationality || "" },
+  { label: "رقم الشهادة الصحية", value: certificateData.certificate_number || "" },
+  { label: "المهنة", value: certificateData.profession || "" },
+  { label: "تاريخ إصدار الشهادة الصحية (ميلادي)", value: certificateData.issue_date_gregorian || "" },
+  { label: "تاريخ إصدار الشهادة الصحية (هجري)", value: certificateData.issue_date || "" },
+  { label: "تاريخ انتهاء الشهادة الصحية (ميلادي)", value: certificateData.expiry_date_gregorian || "" },
+  { label: "تاريخ انتهاء الشهادة الصحية (هجري)", value: certificateData.expiry_date || "" },
+  { label: "نوع البرنامج التثقيفي", value: certificateData.program_type || "" },
+  { label: "تاريخ انتهاء البرنامج التثقيفي", value: certificateData.program_end_date || "" },
+  { label: "رقم الرخصة", value: certificateData.license_number || "" },
+  { label: "اسم المنشأة", value: certificateData.facility_name || "" },
+  { label: "رقم المنشأة", value: certificateData.facility_number || "" },
+] ,
+
+    [certificateData],
+  )
+
+  return (
+    <div className="bg-grey flex-grow">
+      <section className="page-container">
+        <div className="section pt-0 mt-1 mt-md-4">
+          <div className="container p-0">
+            <div className="card p-lg-4">
+              <div className="card-body">
+                <div className="row">
+                  <div className="col-md-12 center">
+                    <div className="sub-heading font-hel">
+                      <h1 style={{ textAlign: "center", fontSize: "27px", fontWeight: "bold", margin: "20px 0" }}>
+                       شـهادة صحية
+                      </h1>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="row">
+                  <div className="col-md-12 text-center">
+                    <Image
+                      width={150}
+                      height={200}
+                      className="inline-block"
+                      src={certificateData.photo_url || "/images/photo.png"}
+                      style={{ margin: "20px" }}
+                      alt="صورة الشهادة"
+                      priority
+                      placeholder="blur"
+                      blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R+Rj5m1P9HvqeJLvTNKvLK4QaUqRTQyFJEIVgGVgQQQCCOQQRyDXPqrHjWjGMeNnYyaXqenXNhqFm7w3VtIY5YnGGVgSCCOhBBBHIIOQa+MsZLdJ7Z9w=="
+                    />
+                  </div>
+                </div>
+
+                <div className="row">
+                  {certificateFields.map((field, index) => (
+                    <CertificateField key={`${field.label}-${index}`} label={field.label} value={field.value} />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  )
+})
+
+CertificateDisplay.displayName = "CertificateDisplay"
+
+// المكون الرئيسي
 export default function VerifyCertificate() {
   const params = useParams()
   const id = params?.id as string
 
   const [certificateData, setCertificateData] = useState<Certificate | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [isValid, setIsValid] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [isSticky, setIsSticky] = useState(false)
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const header = document.querySelector('.page-btns-top-fixed');
-      if (header) {
-        const headerOffset = header.getBoundingClientRect().top;
-        const headerHeight = header.offsetHeight;
-        
-        setIsSticky(headerOffset <= 0 && window.scrollY > headerHeight);
-      }
-    };
-
-    handleScroll();
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  useEffect(() => {
-    let isMounted = true;
-    const controller = new AbortController();
-
-    async function fetchCertificate() {
-      try {
-        setIsLoading(true);
-        const certificate = await getCertificateById(id);
-        
-        if (!isMounted) return;
-        
-        if (!certificate) {
-          setError("لم يتم العثور على الشهادة المطلوبة");
-          return;
-        }
-
-        setCertificateData(certificate);
-        setIsValid(true);
-      } catch (err) {
-        if (isMounted) {
-          console.error("Error fetching certificate:", err);
-          setError("حدث خطأ أثناء جلب بيانات الشهادة");
-        }
-      } finally {
-        if (isMounted) setIsLoading(false);
-      }
+  // جلب البيانات مع تحسينات السرعة
+  const fetchCertificate = useCallback(async () => {
+    if (!id) {
+      setError("معرف الشهادة مطلوب")
+      setIsLoading(false)
+      return
     }
 
-    if (id) fetchCertificate();
+    try {
+      setIsLoading(true)
+      setError(null)
 
-    return () => {
-      isMounted = false;
-      controller.abort();
-    };
-  }, [id]);
+      // استخدام Promise.race للحد الأقصى للوقت
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("انتهت مهلة الاتصال")), 8000),
+      )
 
+      const certificatePromise = getCertificateById(id)
+
+      const certificate = await Promise.race([certificatePromise, timeoutPromise])
+
+      if (!certificate) {
+        setError("لم يتم العثور على الشهادة المطلوبة")
+        return
+      }
+
+      setCertificateData(certificate)
+    } catch (err) {
+      console.error("Error fetching certificate:", err)
+      const errorMessage = err instanceof Error ? err.message : "حدث خطأ أثناء جلب بيانات الشهادة"
+      setError(errorMessage)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [id])
+
+  // تشغيل الجلب فور التحميل
+  useEffect(() => {
+    fetchCertificate()
+  }, [fetchCertificate])
+
+  // عرض التحميل
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-screen bg-white">
-        <div className="flex flex-col items-center">
-          <div className="mb-4 animate-bounce">
-            <img 
-              src="/images/logo.svg" 
-              alt="logo" 
-              className="w-32 h-auto"
-            />
-          </div>
-        </div>
-      </div>
-    )
+    return <FastLoading />
   }
 
-  if (!isValid || !certificateData) {
-    return (
-      <div className="max-w-2xl mx-auto p-8 text-center">
-        {error && (
-          <Alert variant="destructive" className="mb-6">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>خطأ</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-        <h1 className="text-2xl font-bold mb-4">الشهادة غير صالحة</h1>
-        <p className="mb-6">لم يتم العثور على بيانات الشهادة أو أنها غير صالحة</p>
-        <Link href="/" passHref>
-          <Button className="bg-teal-700 hover:bg-teal-800">العودة للصفحة الرئيسية</Button>
-        </Link>
-      </div>
-    )
+  // عرض الخطأ
+  if (error || !certificateData) {
+    return <ErrorDisplay error={error || "بيانات غير صالحة"} />
   }
 
+  // العرض الرئيسي
   return (
     <div className="min-h-screen bg-[#f0f4f5] flex flex-col" dir="rtl">
-      <NavbarBalady />
-      
-      <div className={`bg-white space-y-2 ${isSticky ? 'fixed top-0 left-0 right-0 z-50 shadow-md' : ''}`}>
-        <div className="container p-lg-0">
-          <div className="px-3 pb-2 px-md-0 d-flex flex-column flex-md-row align-items-md-center justify-content-between page-btns-top-fixed">
-            <div className="page-title-content">
-              <nav aria-label="breadcrumb" className="d-flex justify-content-between">
-                {/* محتوى التنقل */}
-              </nav>
-            </div>
-          </div>
-        </div>
-      </div>
+      <Suspense fallback={<div>جاري تحميل القائمة...</div>}>
+        <NavbarBalady />
+      </Suspense>
 
-      <div className="bg-grey flex-grow">
-        <section className="page-container">
-          <div className="section pt-0 mt-1 mt-md-4">
-            <div className="container p-0">
-              <div className="card p-lg-4">
-                <div className="card-body">
-                  <div className="row">
-                    <div className="col-md-12 center">
-                      <div className="sub-heading font-hel">
-                        <h2 style={{ textAlign: "center", fontSize: "24px", fontWeight: "bold", margin: "20px 0" }}>
-                          الشهادة الصحية الموحدة
-                        </h2>
-                      </div>
-                    </div>
-                  </div>
+      <CertificateDisplay certificateData={certificateData} />
 
-                  <div className="row">
-                    <div className="col-md-12 text-center">
-                      <Image 
-                        width={150} 
-                        height={200} 
-                        className="inline-block"
-                        src={certificateData.photo_url || "/images/photo.png"} 
-                        alt="صورة الشهادة"
-                        priority
-                        loading="eager"
-                        style={{ margin: "20px" }}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="row">
-                    {[
-                      { label: "الامانة", value: certificateData.typeser || "اة  " },
-                      { label: "البلدية", value: certificateData.municipality || "بلدية بعشيرة" },
-                      { label: "الاسم", value: certificateData.name },
-                      { label: "رقم الهوية", value: certificateData.id_number },
-                      { label: "الجنس", value: certificateData.gender || "ذكر" },
-                      { label: "الجنسية", value: certificateData.nationality },
-                      { label: "رقم الشهادة الصحية", value: certificateData.certificate_number },
-                      { label: "المهنة", value: certificateData.profession },
-                      { label: "تاريخ إصدار الشهادة الصحية (ميلادي)", value: certificateData.issue_date_gregorian },
-                      { label: "تاريخ إصدار الشهادة الصحية (هجري)", value: certificateData.issue_date },
-                      { label: "تاريخ انتهاء الشهادة الصحية (ميلادي)", value: certificateData.expiry_date_gregorian },
-                      { label: "تاريخ انتهاء الشهادة الصحية (هجري)", value: certificateData.expiry_date },
-                      { label: "نوع البرنامج التثقيفي", value: certificateData.program_type },
-                      { label: "تاريخ انتهاء البرنامج التثقيفي", value: certificateData.program_end_date },
-                      { label: "رقم الرخصة", value: certificateData.license_number || "4100671520174" },
-                      { label: "اسم المنشأة", value: certificateData.facility_name || "أسواق نوريم غالب بن شافي الشمس التجارية" },
-                      { label: "رقم المنشأة", value: certificateData.facility_number || "7041726855" },
-                    ].map((field, index) => (
-                      <div className="col-md-6" key={index}>
-                        <label className="form-group has-float-label">
-                          <input 
-                            className="form-control text-xs font-noto-light" 
-                            style={{ fontSize: '10px' }}
-                            type="text" 
-                            value={field.value} 
-                            readOnly 
-                          />
-                          <span className="text-xs font-hel-sm" style={{ fontSize: '15px' }}>{field.label}</span>
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
-      
-      {/* زر الوصول - يظل ثابتًا فوق المحتوى */}
+      {/* زر الوصول محسن */}
       <div className="fixed bottom-6 right-6 z-10">
-        <button className="w-30 h-30 rounded-full flex items-center justify-center">
+        <button
+          className="w-30 h-30 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow"
+          aria-label="إمكانية الوصول"
+        >
           <Image
             src="/images/access.png"
             alt="إمكانية الوصول"
             width={70}
             height={70}
             className="object-contain"
-            priority
+            loading="lazy"
           />
         </button>
       </div>
 
-      <footer className="footer footer-inner">
-  <div className="container-fluid">
-    <div className="footer-cont">
-      <div className="side-one">
-        <a 
+      {/* Footer محسن */}
+      <footer className="footer footer-inner bg-gray-50 py-4">
+        <div className="container-fluid">
+          <div className="footer-cont flex flex-col md:flex-row justify-between items-center">
+            <div className="side-one mb-4 md:mb-0">
+                      <a 
           className="footer-logo" 
           href="https://balady-gov.net/www.vision2030.gov.sa/ar/v2030/vrps/qol/index.html" 
           target="_blank" 
@@ -353,40 +374,44 @@ export default function VerifyCertificate() {
             </switch>
           </svg>
         </a>
-        <div className="copyright font-noto-light">
-          © 2025 وزارة الشؤون البلدية والقروية والإسكان
-        </div>
-      </div>
-      
-      <div className="side-two font-noto-light">
-        <ul className="list-unstyled">
-          <li>
-            <a href="https://balady.gov.sa/">اتصل بنا</a>
-          </li>
-          <li>
-            <a 
-              href="https://balady.gov.sa/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-            >
-              شروط الاستخدام
-            </a>
-          </li>
-          <li>
-            <a 
-              href="https://balady.gov.sa/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-            >
-              خريطة الموقع
-            </a>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</footer>
+              
+              <div className="copyright font-noto-light text-sm text-gray-600">
+                © 2025 وزارة الشؤون البلدية والقروية والإسكان
+              </div>
+            </div>
 
+            <div className="side-two font-noto-light">
+              <ul className="list-none flex space-x-4 space-x-reverse text-sm">
+                <li>
+                  <a href="https://balady.gov.sa/" className="text-gray-600 hover:text-teal-700 transition-colors">
+                    اتصل بنا
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://balady.gov.sa/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-600 hover:text-teal-700 transition-colors"
+                  >
+                    شروط الاستخدام
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://balady.gov.sa/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-600 hover:text-teal-700 transition-colors"
+                  >
+                    خريطة الموقع
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }

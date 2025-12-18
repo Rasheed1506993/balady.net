@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
@@ -11,17 +11,88 @@ import { Save, ArrowLeft, Upload, AlertCircle } from "lucide-react"
 import { QRCodeCanvas } from "qrcode.react"
 import { v4 as uuidv4 } from "uuid"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { createCertificate, uploadImage,uploadUser, getSupabaseClient } from "@/lib/supabase"
+import { createCertificate, uploadImage, uploadUser, getSupabaseClient } from "@/lib/supabase"
+
+// تحسين: مكون الحقل محسن
+const FormField = ({
+  id,
+  name,
+  label,
+  value,
+  onChange,
+  required = false,
+  placeholder,
+  type = "text",
+}: {
+  id: string
+  name: string
+  label: string
+  value: string
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  required?: boolean
+  placeholder?: string
+  type?: string
+}) => (
+  <div className="space-y-2">
+    <Label htmlFor={id}>{label}</Label>
+    <Input
+      id={id}
+      name={name}
+      value={value}
+      onChange={onChange}
+      required={required}
+      placeholder={placeholder}
+      className="text-right"
+      type={type}
+    />
+  </div>
+)
+
+// تحسين: مكون القائمة المنسدلة محسن
+const SelectField = ({
+  id,
+  name,
+  label,
+  value,
+  onChange,
+  options,
+  required = false,
+}: {
+  id: string
+  name: string
+  label: string
+  value: string
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
+  options: { value: string; label: string }[]
+  required?: boolean
+}) => (
+  <div className="space-y-2">
+    <Label htmlFor={id}>{label}</Label>
+    <select
+      id={id}
+      name={name}
+      value={value}
+      onChange={onChange}
+      required={required}
+      className="w-full p-2 border rounded-md text-right"
+    >
+      {options.map((option) => (
+        <option key={option.value} value={option.value}>
+          {option.label}
+        </option>
+      ))}
+    </select>
+  </div>
+)
 
 export default function CreateCertificate() {
- 
   const router = useRouter()
   const qrRef = useRef<HTMLDivElement>(null)
-  const errorRef = useRef<HTMLDivElement>(null);
+  const errorRef = useRef<HTMLDivElement>(null)
   const [certificateId, setCertificateId] = useState("")
   const [formData, setFormData] = useState({
-    typeser: "أمانة محافظة الطائف",
-    thelogo: "",
+    typeser: "",
+    thelogo: "nothing",
     name: "",
     id_number: "",
     nationality: "",
@@ -41,14 +112,52 @@ export default function CreateCertificate() {
   })
 
   const [photo, setPhoto] = useState<string | null>(null)
-  const [qrCode, setQrCode] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [qrGenerated, setQrGenerated] = useState(false)
   const [isClient, setIsClient] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [storageError, setStorageError] = useState<boolean>(false)
   const [supabaseAvailable, setSupabaseAvailable] = useState(true)
   const [verificationUrl, setVerificationUrl] = useState("")
+
+  // تحسين: خيارات الأمانات مع useMemo
+  const municipalityOptions = useMemo(
+    () => [
+      { value: "أمانة منطقة الرياض", label: "أمانة منطقة الرياض" },
+      { value: "أمانة محافظة جدة", label: "أمانة محافظة جدة" },
+      { value: "أمانة العاصمة المقدسة", label: "أمانة العاصمة المقدسة" },
+      { value: "أمانة منطقة المدينة المنورة", label: "أمانة منطقة المدينة المنورة" },
+      { value: "أمانة محافظة الطائف", label: "أمانة محافظة الطائف" },
+      { value: "أمانة محافظة نجران", label: "أمانة محافظة نجران" },
+      { value: "أمانة منطقة عسير", label: "أمانة منطقة عسير" },
+      { value: "أمانة الباحة", label: "أمانة الباحة" },
+    
+    ],
+    [],
+  )
+
+  const genderOptions = useMemo(
+    () => [
+      { value: "ذكر", label: "ذكر" },
+      { value: "أنثى", label: "أنثى" },
+    ],
+    [],
+  )
+
+  // تحسين: خريطة الشعارات مع useMemo
+  const municipalityLogos = useMemo(
+    () => ({
+      "أمانة منطقة الرياض": "riyadh.jpg",
+      "أمانة محافظة جدة": "jeddah.jpg",
+      "أمانة العاصمة المقدسة": "makah.jpg",
+      "أمانة منطقة المدينة المنورة": "madinah.png",
+      "أمانة محافظة الطائف": "Taif.jpg",
+      "أمانة محافظة نجران": "Najran.jpg",
+      "أمانة منطقة عسير": "assir.jpg",
+      "أمانة الباحة": "amantalbaha.png",
+      
+    }),
+    [],
+  )
 
   useEffect(() => {
     setIsClient(true)
@@ -64,129 +173,135 @@ export default function CreateCertificate() {
     setVerificationUrl(`${window.location.origin}/verify/${newId}`)
   }, [])
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  // تحسين: دالة تغيير البيانات مع useCallback
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+  }, [])
 
- const municipalityLogos = {
-  "أمانة منطقة الرياض": "riyadh.jpg",
-  "أمانة محافظة جدة": "jeddah.jpg",
-  "أمانة العاصمة المقدسة": "makah.jpg",
-  "أمانة منطقة المدينة المنورة": "madinah.png",
-  "أمانة محافظة الطائف": "Taif.jpg",
-  "أمانة محافظة نجران": "Najran.jpg",
-  "أمانة منطقة عسير": "assir.jpg"
-}
-
-const handleTypeserChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-  const selectedValue = e.target.value
-  const logo = municipalityLogos[selectedValue] || ""
-
-  setFormData((prev) => ({
-    ...prev,
-    typeser: selectedValue,
-    thelogo: logo,
-  }))
-}
+  // تحسين: دالة تغيير الأمانة مع useCallback
+  const handleTypeserChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const selectedValue = e.target.value
+    //  const logo = municipalityLogos[selectedValue] || ""
+        const logo = "nothing"
 
 
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+      setFormData((prev) => ({
+        ...prev,
+        typeser: selectedValue,
+        thelogo: logo,
+      }))
+    },
+    [municipalityLogos],
+  )
+
+  // تحسين: دالة رفع الصورة مع useCallback
+  const handlePhotoUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
+      // التحقق من حجم الملف (أقل من 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert("حجم الصورة كبير جداً. يرجى اختيار صورة أصغر من 5MB")
+        return
+      }
+
       const reader = new FileReader()
       reader.onloadend = () => {
         setPhoto(reader.result as string)
       }
       reader.readAsDataURL(file)
     }
-  }
+  }, [])
 
-  const generateQRCodeImage = () => {
+  // تحسين: دالة توليد QR مع useCallback
+  const generateQRCodeImage = useCallback(() => {
     if (qrRef.current) {
       const canvas = qrRef.current.querySelector("canvas")
       if (canvas) {
         const dataURL = canvas.toDataURL("image/png")
-        setQrCode(dataURL)
-        setQrGenerated(true)
         return dataURL
       }
     }
     return null
-  }
+  }, [])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault()
-  setIsSubmitting(true)
-  setError(null)
-  setStorageError(false)
+  // تحسين: دالة الإرسال مع useCallback
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault()
+      setIsSubmitting(true)
+      setError(null)
+      setStorageError(false)
 
-  // ✅ تحقق من اختيار "الأمانة"
-  if (!formData.thelogo || formData.thelogo.trim() === "") {
-  setError("يرجى تحديد قيمة حقل \"الأمانة\" قبل المتابعة.");
-  setTimeout(() => { // استخدام setTimeout لضمان تحديث DOM
-    errorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-  }, 0);
-  setIsSubmitting(false);
-  return;
-}
- 
-  try {
-    const certificateData = {
-      id: certificateId,
-      ...formData,
-      photo_url: null,
-      qr_code_url: null,
-    }
-
-    const client = getSupabaseClient()
-    if (!client) {
-      setError("متغيرات البيئة الخاصة بـ Supabase غير متوفرة. لا يمكن حفظ الشهادة في قاعدة البيانات.")
-      setIsSubmitting(false)
-      return
-    }
-
-    try {
-      if (photo) {
-        const photoUrl = await uploadUser(photo, `photo_${certificateId}`)
-        if (photoUrl) certificateData.photo_url = photoUrl
+      // التحقق من اختيار "الأمانة"
+      if (!formData.thelogo || formData.thelogo.trim() === "") {
+        setError('يرجى تحديد قيمة حقل "الأمانة" قبل المتابعة.')
+        setTimeout(() => {
+          errorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })
+        }, 0)
+        setIsSubmitting(false)
+        return
       }
 
-      const qrCodeDataUrl = generateQRCodeImage()
-      if (qrCodeDataUrl) {
-        const qrCodeUrl = await uploadImage(qrCodeDataUrl, `qrcode_${certificateId}`)
-        if (qrCodeUrl) certificateData.qr_code_url = qrCodeUrl
+      try {
+        const certificateData = {
+          id: certificateId,
+          ...formData,
+          photo_url: null,
+          qr_code_url: null,
+        }
+
+        const client = getSupabaseClient()
+        if (!client) {
+          setError("متغيرات البيئة الخاصة بـ Supabase غير متوفرة. لا يمكن حفظ الشهادة في قاعدة البيانات.")
+          setIsSubmitting(false)
+          return
+        }
+
+        try {
+          // رفع الصور بشكل متوازي
+          const uploadPromises = []
+
+          if (photo) {
+            uploadPromises.push(uploadUser(photo, `photo_${certificateId}`))
+          } else {
+            uploadPromises.push(Promise.resolve(null))
+          }
+
+          const qrCodeDataUrl = generateQRCodeImage()
+          if (qrCodeDataUrl) {
+            uploadPromises.push(uploadImage(qrCodeDataUrl, `qrcode_${certificateId}`))
+          } else {
+            uploadPromises.push(Promise.resolve(null))
+          }
+
+          const [photoUrl, qrCodeUrl] = await Promise.all(uploadPromises)
+
+          if (photoUrl) certificateData.photo_url = photoUrl
+          if (qrCodeUrl) certificateData.qr_code_url = qrCodeUrl
+        } catch (uploadError) {
+          console.error("Error uploading images:", uploadError)
+          setStorageError(true)
+        }
+
+        const newCertificate = await createCertificate(certificateData)
+        if (!newCertificate) {
+          throw new Error("فشل في إنشاء الشهادة. يرجى المحاولة مرة أخرى.")
+        }
+
+        router.push(`/certificates`)
+      } catch (err) {
+        console.error("Error creating certificate:", err)
+        setError(err instanceof Error ? err.message : "حدث خطأ أثناء إنشاء الشهادة. يرجى المحاولة مرة أخرى.")
+      } finally {
+        setIsSubmitting(false)
       }
-    } catch (uploadError) {
-      console.error("Error uploading images:", uploadError)
-      setStorageError(true)
-    }
+    },
+    [formData, certificateId, photo, generateQRCodeImage, router],
+  )
 
-    const newCertificate = await createCertificate(certificateData)
-    if (!newCertificate) {
-      throw new Error("فشل في إنشاء الشهادة. يرجى المحاولة مرة أخرى.")
-    }
-
-    const actualVerificationUrl = `${window.location.origin}/verify/${newCertificate.id}`
-    setVerificationUrl(actualVerificationUrl)
-
-    if (qrRef.current) {
-      const canvas = qrRef.current.querySelector("canvas")
-      if (canvas) {
-        const dataURL = canvas.toDataURL("image/png")
-        setQrCode(dataURL)
-        setQrGenerated(true)
-      }
-    }
-
-    router.push(`/certificates`)
-  } catch (err) {
-    console.error("Error creating certificate:", err)
-    setError(err instanceof Error ? err.message : "حدث خطأ أثناء إنشاء الشهادة. يرجى المحاولة مرة أخرى.")
-  } finally {
-    setIsSubmitting(false)
-  }
-}
   return (
     <div className="Cairo max-w-4xl mx-auto p-4 bg-gray-50" dir="rtl">
       <div className="bg-white rounded-lg shadow-md p-6">
@@ -210,12 +325,12 @@ const handleTypeserChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         )}
 
         {error && (
-  <Alert ref={errorRef} variant="destructive" className="mb-6">
-    <AlertCircle className="h-4 w-4" />
-    <AlertTitle>خطأ</AlertTitle>
-    <AlertDescription>{error}</AlertDescription>
-  </Alert>
-)}
+          <Alert ref={errorRef} variant="destructive" className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>خطأ</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
 
         {storageError && (
           <Alert variant="destructive" className="mb-6">
@@ -233,104 +348,74 @@ const handleTypeserChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
           <div className="bg-gray-50 p-4 rounded-md">
             <h2 className="text-xl font-semibold mb-4 text-teal-700">البيانات الشخصية</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="typeser">الأمانة </Label>
-<select
-  id="typeser"
-  name="typeser"
-  value={formData.typeser}
-  onChange={handleTypeserChange}
-  required
-  className="w-full p-2 border rounded-md text-right"
->
-  <option value="أمانة منطقة الرياض">أمانة منطقة الرياض</option>
-  <option value="أمانة محافظة جدة">أمانة محافظة جدة</option>
-  <option value="أمانة العاصمة المقدسة">أمانة العاصمة المقدسة</option>
-  <option value="أمانة منطقة المدينة المنورة">أمانة منطقة المدينة المنورة</option>
-  <option value="أمانة محافظة الطائف">أمانة محافظة الطائف</option>
-  <option value="أمانة محافظة نجران">أمانة محافظة نجران</option>
-  <option value="أمانة منطقة عسير">أمانة منطقة عسير</option> {/* أضفنا هذا السطر */}
-</select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="name">الاسم الكامل</Label>
-                <Input
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="أدخل الاسم الكامل"
-                  className="text-right"
-                />
-              </div>
+              <SelectField
+                id="typeser"
+                name="typeser"
+                label="الأمانة"
+                value={formData.typeser}
+                onChange={handleTypeserChange}
+                options={municipalityOptions}
+                required
+              />
 
-              <div className="space-y-2">
-                <Label htmlFor="id_number">رقم الهوية</Label>
-                <Input
-                  id="id_number"
-                  name="id_number"
-                  value={formData.id_number}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="أدخل رقم الهوية"
-                  className="text-right"
-                />
-              </div>
+              <FormField
+                id="name"
+                name="name"
+                label="الاسم الكامل"
+                value={formData.name}
+                onChange={handleInputChange}
+                required
+                placeholder="أدخل الاسم الكامل"
+              />
 
-              <div className="space-y-2">
-                <Label htmlFor="nationality">الجنسية</Label>
-                <Input
-                  id="nationality"
-                  name="nationality"
-                  value={formData.nationality}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="أدخل الجنسية"
-                  className="text-right"
-                />
-              </div>
+              <FormField
+                id="id_number"
+                name="id_number"
+                label="رقم الهوية"
+                value={formData.id_number}
+                onChange={handleInputChange}
+                required
+                placeholder="أدخل رقم الهوية"
+              />
 
-              <div className="space-y-2">
-                <Label htmlFor="profession">المهنة</Label>
-                <Input
-                  id="profession"
-                  name="profession"
-                  value={formData.profession}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="أدخل المهنة"
-                  className="text-right"
-                />
-              </div>
+              <FormField
+                id="nationality"
+                name="nationality"
+                label="الجنسية"
+                value={formData.nationality}
+                onChange={handleInputChange}
+                required
+                placeholder="أدخل الجنسية"
+              />
 
-              <div className="space-y-2">
-                <Label htmlFor="gender">الجنس</Label>
-                <select
-                  id="gender"
-                  name="gender"
-                  value={formData.gender}
-                  onChange={handleInputChange as any}
-                  required
-                  className="w-full p-2 border rounded-md text-right"
-                >
-                  <option value="ذكر">ذكر</option>
-                  <option value="أنثى">أنثى</option>
-                </select>
-              </div>
+              <FormField
+                id="profession"
+                name="profession"
+                label="المهنة"
+                value={formData.profession}
+                onChange={handleInputChange}
+                required
+                placeholder="أدخل المهنة"
+              />
 
-              <div className="space-y-2">
-                <Label htmlFor="municipality">البلدية</Label>
-                <Input
-                  id="municipality"
-                  name="municipality"
-                  value={formData.municipality}
-                  onChange={handleInputChange}
-                  placeholder="أدخل اسم البلدية"
-                  className="text-right"
-                />
-              </div>
+              <SelectField
+                id="gender"
+                name="gender"
+                label="الجنس"
+                value={formData.gender}
+                onChange={handleInputChange as any}
+                options={genderOptions}
+                required
+              />
+
+              <FormField
+                id="municipality"
+                name="municipality"
+                label="البلدية"
+                value={formData.municipality}
+                onChange={handleInputChange}
+                placeholder="أدخل اسم البلدية"
+              />
             </div>
           </div>
 
@@ -338,92 +423,71 @@ const handleTypeserChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
           <div className="bg-gray-50 p-4 rounded-md">
             <h2 className="text-xl font-semibold mb-4 text-teal-700">بيانات الشهادة</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="certificate_number">رقم الشهادة الصحية</Label>
-                <Input
-                  id="certificate_number"
-                  name="certificate_number"
-                  value={formData.certificate_number}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="أدخل رقم الشهادة"
-                  className="text-right"
-                />
-              </div>
+              <FormField
+                id="certificate_number"
+                name="certificate_number"
+                label="رقم الشهادة الصحية"
+                value={formData.certificate_number}
+                onChange={handleInputChange}
+                required
+                placeholder="أدخل رقم الشهادة"
+              />
 
-              <div className="space-y-2">
-                <Label htmlFor="issue_date">تاريخ اصدار الشهادة الصحية (هجري)</Label>
-                <Input
-                  id="issue_date"
-                  name="issue_date"
-                  value={formData.issue_date || ""}
-                  onChange={handleInputChange}
-                  placeholder="مثال: 1445/05/15"
-                  className="text-right"
-                  required
-                />
-              </div>
+              <FormField
+                id="issue_date"
+                name="issue_date"
+                label="تاريخ اصدار الشهادة الصحية (هجري)"
+                value={formData.issue_date}
+                onChange={handleInputChange}
+                required
+                placeholder="مثال: 1445/05/15"
+              />
 
-              <div className="space-y-2">
-                <Label htmlFor="expiry_date">تاريخ انتهاء الشهادة الصحية (هجري)</Label>
-                <Input
-                  id="expiry_date"
-                  name="expiry_date"
-                  value={formData.expiry_date || ""}
-                  onChange={handleInputChange}
-                  placeholder="مثال: 1446/05/15"
-                  className="text-right"
-                  required
-                />
-              </div>
+              <FormField
+                id="expiry_date"
+                name="expiry_date"
+                label="تاريخ انتهاء الشهادة الصحية (هجري)"
+                value={formData.expiry_date}
+                onChange={handleInputChange}
+                required
+                placeholder="مثال: 1446/05/15"
+              />
 
-              <div className="space-y-2">
-                <Label htmlFor="issue_date_gregorian">تاريخ إصدار الشهادة (ميلادي)</Label>
-                <Input
-                  id="issue_date_gregorian"
-                  name="issue_date_gregorian"
-                  value={formData.issue_date_gregorian}
-                  onChange={handleInputChange}
-                  className="text-right"
-                />
-              </div>
+              <FormField
+                id="issue_date_gregorian"
+                name="issue_date_gregorian"
+                label="تاريخ إصدار الشهادة (ميلادي)"
+                value={formData.issue_date_gregorian}
+                onChange={handleInputChange}
+              />
 
-              <div className="space-y-2">
-                <Label htmlFor="expiry_date_gregorian">تاريخ انتهاء الشهادة (ميلادي)</Label>
-                <Input
-                  id="expiry_date_gregorian"
-                  name="expiry_date_gregorian"
-                  value={formData.expiry_date_gregorian}
-                  onChange={handleInputChange}
-                  className="text-right"
-                />
-              </div>
+              <FormField
+                id="expiry_date_gregorian"
+                name="expiry_date_gregorian"
+                label="تاريخ انتهاء الشهادة (ميلادي)"
+                value={formData.expiry_date_gregorian}
+                onChange={handleInputChange}
+              />
 
-              <div className="space-y-2">
-                <Label htmlFor="program_type">نوع البرنامج التفتيش</Label>
-                <Input
-                  id="program_type"
-                  name="program_type"
-                  value={formData.program_type}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="أدخل نوع البرنامج"
-                  className="text-right"
-                />
-              </div>
+              <FormField
+                id="program_type"
+                name="program_type"
+                label="نوع البرنامج التفتيش"
+                value={formData.program_type}
+                onChange={handleInputChange}
+                required
+                placeholder="أدخل نوع البرنامج"
+              />
 
-              <div className="space-y-2">
-                <Label htmlFor="program_end_date">تاريخ انتهاء البرنامج</Label>
-                <Input
-                  id="program_end_date"
-                  name="program_end_date"
-                  value={formData.program_end_date || ""}
-                  onChange={handleInputChange}
-                  placeholder="مثال: 1447/05/15"
-                  className="text-right"
-                  required
-                />
-              </div>
+              <FormField
+                id="program_end_date"
+                name="program_end_date"
+                label="تاريخ انتهاء البرنامج"
+                value={formData.program_end_date}
+                onChange={handleInputChange}
+                required
+                placeholder="مثال: 1447/05/15"
+              />
             </div>
           </div>
 
@@ -431,41 +495,32 @@ const handleTypeserChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
           <div className="bg-gray-50 p-4 rounded-md">
             <h2 className="text-xl font-semibold mb-4 text-teal-700">بيانات المنشأة</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="facility_name">اسم المنشأة</Label>
-                <Input
-                  id="facility_name"
-                  name="facility_name"
-                  value={formData.facility_name}
-                  onChange={handleInputChange}
-                  placeholder="أدخل اسم المنشأة"
-                  className="text-right"
-                />
-              </div>
+              <FormField
+                id="facility_name"
+                name="facility_name"
+                label="اسم المنشأة"
+                value={formData.facility_name}
+                onChange={handleInputChange}
+                placeholder="أدخل اسم المنشأة"
+              />
 
-              <div className="space-y-2">
-                <Label htmlFor="facility_number">رقم المنشأة</Label>
-                <Input
-                  id="facility_number"
-                  name="facility_number"
-                  value={formData.facility_number}
-                  onChange={handleInputChange}
-                  placeholder="أدخل رقم المنشأة"
-                  className="text-right"
-                />
-              </div>
+              <FormField
+                id="facility_number"
+                name="facility_number"
+                label="رقم المنشأة"
+                value={formData.facility_number}
+                onChange={handleInputChange}
+                placeholder="أدخل رقم المنشأة"
+              />
 
-              <div className="space-y-2">
-                <Label htmlFor="license_number">رقم الرخصة</Label>
-                <Input
-                  id="license_number"
-                  name="license_number"
-                  value={formData.license_number}
-                  onChange={handleInputChange}
-                  placeholder="أدخل رقم الرخصة"
-                  className="text-right"
-                />
-              </div>
+              <FormField
+                id="license_number"
+                name="license_number"
+                label="رقم الرخصة"
+                value={formData.license_number}
+                onChange={handleInputChange}
+                placeholder="أدخل رقم الرخصة"
+              />
             </div>
           </div>
 
@@ -502,14 +557,7 @@ const handleTypeserChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
                 <div className="flex flex-col items-center gap-4">
                   <div className="border border-gray-300 p-1 w-40 h-40 relative flex items-center justify-center">
                     <div ref={qrRef} className="w-full h-full flex items-center justify-center">
-                      {isClient && (
-                        <QRCodeCanvas
-                          value={verificationUrl}
-                          size={150}
-                          level="H"
-                          includeMargin={true}
-                        />
-                      )}
+                      {isClient && <QRCodeCanvas value={verificationUrl} size={150} level="H" includeMargin={true} />}
                     </div>
                   </div>
                   <p className="text-sm text-gray-500 text-center">

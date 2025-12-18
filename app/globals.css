@@ -1,216 +1,147 @@
-/*
- * إعدادات Tailwind CSS والأنماط المخصصة للمشروع.
- * تتضمن تعريفات الخطوط، متغيرات الألوان للموضوع الفاتح والداكن،
- * وفئات الأدوات المساعدة، بالإضافة إلى أنماط خاصة بالطباعة.
-*/
-
-/*
- * استيراد طبقات Tailwind CSS الأساسية.
- * يجب أن تكون هذه الاستيرادات في بداية الملف.
-*/
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/*
- * تحديد الخط الافتراضي لعنصر الـ body.
- * 'Cairo Arabic' هو الخط الأساسي، مع Arial و Helvetica كخطوط احتياطية.
-*/
-body {
-  font-family: 'Cairo', Arial, Helvetica, sans-serif;
+/* تحسينات الأداء والتنقل */
+.performance-optimized {
+  /* تحسين الرسوم المتحركة */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+
+  /* تحسين التمرير */
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-  .font-times-new-roman {
-    font-family: "Times New Roman", Times, serif;
-  }
-  .font-somar {
-    font-family: 'Somar', sans-serif;
-  }
-  .font-doto { /* أضف هذه الفئة */
-    font-family: 'Doto', sans-serif;
-  }
+.navigation-optimized {
+  /* تحسين التنقل */
+  
+  
+}
 
-  .font-hel { /* أضف هذه الفئة */
-    font-family: 'hel', sans-serif;
-    font-weight: 400;
-  }
+.navigation-smooth {
+  /* انتقالات سلسة */
+  transition: opacity 0.15s ease-in-out;
+}
 
-  .font-hel-sm { /* أضف هذه الفئة */
-    font-family: 'hel', sans-serif;
-    font-weight: 700;
-  }
-    .Cairo { /* أضف هذه الفئة */
-    font-family: 'Cairo', sans-serif;
-  }
+.scroll-optimized {
+  /* تحسين التمرير */
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
 
-  .font-noto-thin {
-    font-family: 'Noto Kufi Arabic', sans-serif;
-    font-weight: 100;
-  }
-  .font-noto-extralight {
-    font-family: 'Noto Kufi Arabic', sans-serif;
-    font-weight: 200;
-  }
-  .font-noto-light {
-    font-family: 'Noto Kufi Arabic', sans-serif;
-    font-weight: 300;
-  }
-  .font-noto-regular { /* أو .font-noto-normal */
-    font-family: 'Noto Kufi Arabic', sans-serif;
-    font-weight: 400;
+/* تحسين الصور */
+img {
+  /* تحسين تحميل الصور */
+  content-visibility: auto;
+  contain-intrinsic-size: 300px 200px;
+}
 
-  }
-  .font-noto-medium {
-    font-family: 'Noto Kufi Arabic', sans-serif;
-    font-weight: 500;
-  }
-  .font-noto-semibold {
-    font-family: 'Noto Kufi Arabic', sans-serif;
-    font-weight: 600;
-  }
+.lazy {
+  opacity: 0;
+  transition: opacity 0.3s;
+}
 
-  .font-noto-extrabold {
-    font-family: 'Noto Kufi Arabic', sans-serif;
-    font-weight: 800;
-  }
-  .font-noto-black {
-    font-family: 'Noto Kufi Arabic', sans-serif;
-    font-weight: 900;
-  }
+.lazy.loaded {
+  opacity: 1;
+}
 
-  .font-size-20 {
-    font-size: 20px;
+/* تحسين الأزرار والروابط */
+button,
+a {
+  /* تحسين الاستجابة */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* تحسين البطاقات */
+.card-optimized {
+  /* تحسين الرسوم المتحركة */
+  will-change: transform, box-shadow;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* تحسين الجداول */
+table {
+  /* تحسين العرض */
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+/* تحسين النماذج */
+input,
+textarea,
+select {
+  /* تحسين الأداء */
+  will-change: auto;
+}
+
+/* تحسين الشبكة */
+.grid-optimized {
+  /* تحسين الشبكة */
+  contain: layout style paint;
+}
+
+/* تحسين الحاويات */
+.container-optimized {
+  /* تحسين الحاوية */
+  contain: layout style;
+  content-visibility: auto;
+}
+
+/* تحسين الانتقالات */
+.transition-optimized {
+  /* انتقالات محسنة */
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s
+    cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* تحسين التحميل */
+.loading-optimized {
+  /* تحسين شاشات التحميل */
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
   }
 }
 
-@layer base {
-  /* متغيرات الوضع الفاتح (Light Mode) */
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem; /* نصف قطر الزوايا المستديرة */
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
+/* تحسين الخطوط */
+@font-face {
+  font-family: "Cairo";
+  src: url("/fonts/Cairo-Regular.ttf") format("truetype");
+  font-display: swap;
+  font-weight: 400;
+}
 
-  /* متغيرات الوضع الداكن (Dark Mode) */
-  .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  /*
-   * تعريف الخطوط المخصصة باستخدام @font-face.
-   * تأكد من أن مسارات الملفات (url) صحيحة.
-  */
-  @font-face {
-    font-family: 'Times New Roman';
-    font-weight: bold;
-    src: local('Times New Roman Bold'), local('TimesNewRomanPS-BoldMT');
-    font-display: swap; /* لتحسين عرض الخط أثناء التحميل */
-  }
+@font-face {
+  font-family: "Cairo";
+  src: url("/fonts/Cairo-VariableFont_slnt_wght.ttf") format("truetype");
+  font-display: swap;
+  font-weight: 100 900;
+}
 
   @font-face {
-    font-family: 'Somar';
-    src: url('/fonts/somar-regular.otf-webfont.woff2') format('woff2'),
-         url('/fonts/somar-regular.otf-webfont.woff') format('woff');
-    font-weight: normal;
+    font-family: 'hel';
+    src: url("/fonts/Helvetica.ttf");
     font-style: normal;
     font-display: swap; /* لتحسين عرض الخط أثناء التحميل */
   }
-
+  
   @font-face {
-    font-family: 'Noto Kufi Arabic';
-    src: url("/fonts/static/NotoKufiArabic-Black.ttf") format('truetype');
-    font-weight: 900; /* Black */
-    font-style: normal;
-    font-display: swap;
-  }
-
-  @font-face {
-    font-family: 'Noto Kufi Arabic';
-    src: url("/fonts/static/NotoKufiArabic-ExtraBold.ttf") format('truetype');
-    font-weight: 800; /* ExtraBold */
-    font-style: normal;
-    font-display: swap;
-  }
-
-  /* تم إضافة هذا التعريف لخط Cairo Arabic */
-  @font-face {
-    font-family: 'Cairo';
-    src: url("/fonts/Cairo-VariableFont_slnt_wght.ttf") format('truetype');
-    
-  }
-
-  @font-face {
-    font-family: 'Doto';
-    src: url("/fonts/static/NotoKufiArabic-Bold.ttf");
-    font-weight: normal; /* أو bold حسب الخط */
-    font-style: normal;
-    font-display: swap; /* لتحسين عرض الخط أثناء التحميل */
-  }
+  font-family: 'JN';
+  src: url('/fonts/jn.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
 
   @font-face {
     font-family: 'Noto Kufi Arabic';
@@ -259,91 +190,112 @@ body {
     font-style: normal;
     font-display: swap;
   }
+  
   @font-face {
-    font-family: 'hel';
-    src: url("/fonts/Helvetica.ttf");
+    font-family: 'Doto';
+    src: url("/fonts/static/NotoKufiArabic-Bold.ttf");
+    font-weight: normal; /* أو bold حسب الخط */
     font-style: normal;
     font-display: swap; /* لتحسين عرض الخط أثناء التحميل */
   }
-  
-  @font-face {
-  font-family: 'JN';
-  src: url('/fonts/jn.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
 
-  
-}
 
-/*
- * إعدادات Tailwind CSS المخصصة للثيم.
- * يتم استخدامها لتحديد متغيرات CSS يمكن الوصول إليها مباشرة في Tailwind config.
-*/
-@theme {
-  --font-doto: Doto, "sans-serif"; /* تعريف خط Doto كمتغير في الثيم */
-}
-
-/*
- * قواعد CSS أساسية يتم تطبيقها على جميع العناصر.
- * تستخدم @apply لتطبيق كلاسات Tailwind CSS بناءً على المتغيرات المعرفة.
-*/
-@layer base {
+/* تحسين الاستجابة */
+@media (prefers-reduced-motion: reduce) {
   * {
-    @apply border-border; /* تطبيق لون الحدود الافتراضي على جميع العناصر */
-  }
-
-  body {
-    @apply bg-background text-foreground; /* تطبيق ألوان الخلفية والنص الأساسية */
-    font-family: 'Cairo Arabic', Arial, sans-serif; /* تم تحديث الخط هنا */
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
-/*
- * أنماط خاصة بالطباعة.
- * يتم تطبيقها فقط عند طباعة الصفحة (مثلاً: Ctrl+P أو Cmd+P).
-*/
+/* تحسين الطباعة */
 @media print {
-  /* تحديد أبعاد الشهادة على الصفحة المطبوعة وضبط الهوامش والخلفية */
-  #full-certificate-container {
-    width: 210mm !important; /* عرض ورقة A4 */
-    height: 297mm !important; /* ارتفاع ورقة A4 */
-    margin: 0 !important; /* إزالة الهوامش */
-    padding: 15mm !important; /* إضافة حشوة داخلية */
-    background: white !important; /* خلفية بيضاء لضمان الطباعة */
-    position: static !important; /* إزالة تحديد الموضع النسبي/المطلق */
-    box-shadow: none !important; /* إزالة الظل */
-    border: none !important; /* إزالة الحدود */
-  }
-
-  /* تأكيد الخط لـ body في الطباعة */
-  body {
-    font-family: 'Cairo Arabic', sans-serif !important; /* تم تحديث الخط هنا */
-  }
-
-  /* إخفاء العناصر غير المرغوب فيها في الطباعة (مثل الأزرار أو عناصر التنقل) */
-  .no-print, .export-button-section {
-    display: none !important;
-  }
-
-  /* ضمان طباعة الألوان والخلفيات بدقة (وليس بتدرج رمادي) */
   * {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-
-  /* منع تقسيم الجداول والصفوف والخلايا عبر صفحات الطباعة */
-  table, tr, td {
-    page-break-inside: avoid !important;
+    background: transparent !important;
+    color: black !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
   }
 }
 
-/*
- * تحسينات عامة لعرض حاوية الشهادة.
- * تضمن ضبط الألوان وتحديد نموذج الصندوق.
-*/
-#full-certificate-container {
-  -webkit-print-color-adjust: exact;
-  print-color-adjust: exact;
-  box-sizing: border-box; /* التأكد من أن padding و border يتم تضمينهما في الحجم الكلي */
+/* تحسين الشاشات الصغيرة */
+@media (max-width: 768px) {
+  .mobile-optimized {
+    /* تحسين الهواتف */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
 }
+
+/* تحسين الشاشات الكبيرة */
+@media (min-width: 1024px) {
+  .desktop-optimized {
+    /* تحسين أجهزة الكمبيوتر */
+    contain: layout style paint;
+  }
+}
+
+/* تحسين الألوان الداكنة */
+@media (prefers-color-scheme: dark) {
+  .dark-optimized {
+    /* تحسين الوضع الداكن */
+    color-scheme: dark;
+  }
+}
+
+/* تحسين الذاكرة */
+.memory-optimized {
+  /* تحسين استخدام الذاكرة */
+  contain: strict;
+  content-visibility: auto;
+  contain-intrinsic-size: 0 500px;
+}
+
+/* Cairo font class */
+.Cairo {
+  font-family: "Cairo", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-feature-settings: "kern" 1, "liga" 1;
+  text-rendering: optimizeLegibility;
+}
+
+.font-hel { /* أضف هذه الفئة */
+    font-family: 'hel', sans-serif;
+    font-weight: 400;
+  }
+
+  .font-hel-sm { /* أضف هذه الفئة */
+    font-family: 'hel', sans-serif;
+    font-weight: 700;
+  }
+
+  .font-noto-thin {
+    font-family: 'Noto Kufi Arabic', sans-serif;
+    font-weight: 100;
+  }
+  .font-noto-extralight {
+    font-family: 'Noto Kufi Arabic', sans-serif;
+    font-weight: 200;
+  }
+  .font-noto-light {
+    font-family: 'Noto Kufi Arabic', sans-serif;
+    font-weight: 300;
+  }
+  .font-noto-regular { /* أو .font-noto-normal */
+    font-family: 'Noto Kufi Arabic', sans-serif;
+    font-weight: 400;
+
+  }
+  .font-noto-medium {
+    font-family: 'Noto Kufi Arabic', sans-serif;
+    font-weight: 500;
+  }
+  .font-noto-semibold {
+    font-family: 'Noto Kufi Arabic', sans-serif;
+    font-weight: 600;
+  }
+  
+  .font-doto { /* أضف هذه الفئة */
+    font-family: 'Doto', sans-serif;
+  }
