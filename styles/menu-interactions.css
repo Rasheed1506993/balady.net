@@ -41,6 +41,11 @@
 /* Additional refinements for dropdown items */
 .dropdown-menu a {
     cursor: pointer;
+    font-size: 20px !important;
+    line-height: 40px !important;
+    color: rgb(6, 72, 71) !important;
+    /* Dark teal - Balady brand color */
+    font-weight: 400;
 }
 
 /* Active/Selected dropdown item - matches official Balady page */

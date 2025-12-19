@@ -160,10 +160,12 @@ const CertificateDisplay = React.memo(
                         <div
                           style={{
                             textAlign: "center",
-                            fontSize: "16px",
-                            fontWeight: "400",
+                            fontSize: "32px",
+                            fontWeight: "700",
                             color: "rgb(72, 78, 86)",
                             margin: "20px 0",
+                            fontFamily: '"Frutiger", "Helvetica Neue", Helvetica, Arial, sans-serif',
+                            lineHeight: "1.2",
                           }}
                         >
                           شهادة صحية
