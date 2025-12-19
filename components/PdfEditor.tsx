@@ -31,7 +31,7 @@ const PdfEditor = ({ pdfTemplateUrl, certificateData, onComplete }: PdfEditorPro
       link.download = filename
       document.body.appendChild(link)
       link.click()
-      document.body.removeChild(link) // Clean up immediately
+      document.body.removeChild(link)
       URL.revokeObjectURL(url)
     } catch (error) {
       console.error("خطأ في تحميل الملف:", error)
@@ -55,49 +55,6 @@ const PdfEditor = ({ pdfTemplateUrl, certificateData, onComplete }: PdfEditorPro
     } catch (error) {
       console.error("خطأ في تحميل الخط:", error)
       return null
-    }
-  }, [])
-
-  const embedImage = useCallback(async (pdfDoc: any, url: string) => {
-    if (!url) return null
-    if (imageCache.current.has(url)) {
-      return imageCache.current.get(url)
-    }
-    try {
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 10000)
-      const response = await fetch(url, {
-        method: "GET",
-        mode: "cors",
-        cache: "force-cache",
-        signal: controller.signal,
-        headers: { Accept: "image/*" },
-      })
-      clearTimeout(timeoutId)
-      if (!response.ok) {
-        console.warn(`فشل تحميل الصورة: ${url} - Status: ${response.status}`)
-        return await getDefaultImage(pdfDoc, url)
-      }
-      const contentType = response.headers.get("content-type")
-      const imageBuffer = await response.arrayBuffer()
-      let embeddedImage
-      if (contentType?.includes("image/png")) {
-        embeddedImage = await pdfDoc.embedPng(imageBuffer)
-      } else if (contentType?.includes("image/jpeg") || contentType?.includes("image/jpg")) {
-        embeddedImage = await pdfDoc.embedJpg(imageBuffer)
-      } else {
-        const convertedImage = await convertToPng(imageBuffer, contentType)
-        if (convertedImage) {
-          embeddedImage = await pdfDoc.embedPng(convertedImage)
-        }
-      }
-      if (embeddedImage) {
-        imageCache.current.set(url, embeddedImage)
-      }
-      return embeddedImage
-    } catch (err) {
-      console.error(`❌ خطأ أثناء تضمين الصورة: ${url}`, err)
-      return await getDefaultImage(pdfDoc, url)
     }
   }, [])
 
@@ -131,6 +88,7 @@ const PdfEditor = ({ pdfTemplateUrl, certificateData, onComplete }: PdfEditorPro
           const blob = new Blob([imageBuffer], { type: contentType || "image/*" })
           const img = new Image()
           const reader = new FileReader()
+
           reader.onload = () => {
             img.src = reader.result as string
           }
@@ -155,6 +113,7 @@ const PdfEditor = ({ pdfTemplateUrl, certificateData, onComplete }: PdfEditorPro
               resolve(null)
             }
           }
+
           img.onerror = () => resolve(null)
         } catch (error) {
           console.error("خطأ في تحويل الصورة:", error)
@@ -163,6 +122,59 @@ const PdfEditor = ({ pdfTemplateUrl, certificateData, onComplete }: PdfEditorPro
       })
     },
     [],
+  )
+
+  const embedImage = useCallback(
+    async (pdfDoc: any, url: string) => {
+      if (!url) return null
+      if (imageCache.current.has(url)) {
+        return imageCache.current.get(url)
+      }
+      try {
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 10000)
+
+        const response = await fetch(url, {
+          method: "GET",
+          mode: "cors",
+          cache: "force-cache",
+          signal: controller.signal,
+          headers: { Accept: "image/*" },
+        })
+
+        clearTimeout(timeoutId)
+
+        if (!response.ok) {
+          console.warn(`فشل تحميل الصورة: ${url} - Status: ${response.status}`)
+          return await getDefaultImage(pdfDoc, url)
+        }
+
+        const contentType = response.headers.get("content-type")
+        const imageBuffer = await response.arrayBuffer()
+        let embeddedImage
+
+        if (contentType?.includes("image/png")) {
+          embeddedImage = await pdfDoc.embedPng(imageBuffer)
+        } else if (contentType?.includes("image/jpeg") || contentType?.includes("image/jpg")) {
+          embeddedImage = await pdfDoc.embedJpg(imageBuffer)
+        } else {
+          const convertedImage = await convertToPng(imageBuffer, contentType)
+          if (convertedImage) {
+            embeddedImage = await pdfDoc.embedPng(convertedImage)
+          }
+        }
+
+        if (embeddedImage) {
+          imageCache.current.set(url, embeddedImage)
+        }
+
+        return embeddedImage
+      } catch (err) {
+        console.error(`❌ خطأ أثناء تضمين الصورة: ${url}`, err)
+        return await getDefaultImage(pdfDoc, url)
+      }
+    },
+    [convertToPng, getDefaultImage],
   )
 
   const drawRightAlignedText = useCallback(
@@ -198,52 +210,41 @@ const PdfEditor = ({ pdfTemplateUrl, certificateData, onComplete }: PdfEditorPro
       const pages = pdfDoc.getPages()
       const firstPage = pages[0]
 
+      // طرح 0.19 من كل قيم y
       const textData = [
-        { text: certificateData.name, x: 8.35, y: 9.56, size: 15.7, color: colors.name },
-        { text: certificateData.id_number, x: 8.2, y: 8.76, size: 11, color: colors.text },
-        { text: certificateData.certificate_number, x: 8.2, y: 8.0, size: 11, color: colors.text },
-        { text: certificateData.issue_date, x: 8.2, y: 7.24, size: 11, color: colors.text },
-        { text: certificateData.program_type, x: 8.2, y: 6.48, size: 11, color: colors.text },
-        { text: certificateData.nationality, x: 5.0, y: 8.76, size: 11, color: colors.text },
-        { text: certificateData.profession, x: 5.0, y: 8.0, size: 11, color: colors.text },
-        { text: certificateData.expiry_date, x: 5.0, y: 7.24, size: 11, color: colors.text },
-        { text: certificateData.program_end_date, x: 5.0, y: 6.48, size: 11, color: colors.text },
+        { text: certificateData.name, x: 8.35, y: 9.56 - 0.23, size: 15.7, color: colors.name },
+        { text: certificateData.id_number, x: 8.2, y: 8.76 - 0.23, size: 11, color: colors.text },
+        { text: certificateData.certificate_number, x: 8.2, y: 8.0 - 0.23, size: 11, color: colors.text },
+        { text: certificateData.issue_date, x: 8.2, y: 7.24 - 0.23, size: 11, color: colors.text },
+        { text: certificateData.program_type, x: 8.2, y: 6.48 - 0.23, size: 11, color: colors.text },
+        { text: certificateData.nationality, x: 5.0, y: 8.76 - 0.23, size: 11, color: colors.text },
+        { text: certificateData.profession, x: 5.0, y: 8.0 - 0.23, size: 11, color: colors.text },
+        { text: certificateData.expiry_date, x: 5.0, y: 7.24 - 0.23, size: 11, color: colors.text },
+        { text: certificateData.program_end_date, x: 5.0, y: 6.48 - 0.23, size: 11, color: colors.text },
       ]
 
       textData.forEach(({ text, x, y, size, color }) => {
         drawRightAlignedText(firstPage, text, x, y, customFont, size, color)
       })
 
-      // ************* جزء تعديل تحميل الصور الجديد *************
-      const [
-        image1Result,
-        image2Result,
-        imglogoResult, // هذا سيحتوي على نتيجة الشعار إذا وجد، أو null إذا لم يكن موجودًا
-        imagefotResult,
-      ] = await Promise.allSettled([
+      const [image1Result, image2Result, imglogoResult] = await Promise.allSettled([
         embedImage(pdfDoc, certificateData.photo_url || "/images/photo.png"),
         embedImage(pdfDoc, certificateData.qr_code_url || "/images/qr-code.png"),
-        // هنا الشرط: نضمّن الوعد بتحميل الشعار فقط إذا لم يكن "nothing"
-        // وإلا فإننا نضع وعدًا يتم حله بـ null مباشرة، مما يحافظ على الترتيب في Promise.allSettled
         certificateData.thelogo !== "nothing"
           ? embedImage(pdfDoc, `/images/${certificateData.thelogo}`)
           : Promise.resolve(null),
-        embedImage(pdfDoc, "/images/instructions-full.png"),
       ])
 
-      // استخراج القيم من النتائج
       const image1 = image1Result.status === "fulfilled" ? image1Result.value : null
       const image2 = image2Result.status === "fulfilled" ? image2Result.value : null
       const imglogo = imglogoResult.status === "fulfilled" ? imglogoResult.value : null
-      const imagefot = imagefotResult.status === "fulfilled" ? imagefotResult.value : null
-      // ************* نهاية جزء تعديل تحميل الصور الجديد *************
 
       const imageData = [
-        { image: image1, x: 0.22, y: 8.32, width: 1.62, height: 1.61, name: "photo" },
-        { image: image2, x: 0.22, y: 6.42, width: 1.62, height: 1.61, name: "qr" },
-        // نرسم الشعار فقط إذا كانت قيمة imglogo ليست null
-        ...(imglogo ? [{ image: imglogo, x: 5.85, y: 10.0, width: 0.8, height: 0.84, name: "logo" }] : []),
-        { image: imagefot, x: 0, y: 0.4, width: 8.5, height: 5.35, name: "footer" },
+        { image: image1, x: 0.22, y: 8.32 - 0.19, width: 1.62, height: 1.61, name: "photo" },
+        { image: image2, x: 0.22, y: 6.42 - 0.19, width: 1.62, height: 1.61, name: "qr" },
+        ...(imglogo
+          ? [{ image: imglogo, x: 5.85, y: 10.0, width: 0.8, height: 0.84, name: "logo" }]
+          : []),
       ]
 
       imageData.forEach(({ image, x, y, width, height, name }) => {
@@ -286,7 +287,7 @@ const PdfEditor = ({ pdfTemplateUrl, certificateData, onComplete }: PdfEditorPro
       hasDownloaded.current = true
       modifyPdf()
     }
-  }, [modifyPdf])
+  }, [modifyPdf, pdfTemplateUrl, certificateData])
 
   useEffect(() => {
     return () => {

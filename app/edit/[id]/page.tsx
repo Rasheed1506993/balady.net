@@ -79,25 +79,25 @@ export default function EditCertificate() {
   }
 
   const municipalityLogos: Record<string, string> = {
-  "أمانة منطقة الرياض": "riyadh.jpg",
-  "أمانة محافظة جدة": "jeddah.jpg",
-  "أمانة العاصمة المقدسة": "makah.jpg",
-  "أمانة منطقة المدينة المنورة": "madinah.png",
-  "أمانة محافظة الطائف": "Taif.jpg",
-  "أمانة محافظة نجران": "Najran.jpg",
-  "أمانة منطقة عسير": "assir.jpg"
-}
+    "أمانة منطقة الرياض": "riyadh.jpg",
+    "أمانة محافظة جدة": "jeddah.jpg",
+    "أمانة العاصمة المقدسة": "makah.jpg",
+    "أمانة منطقة المدينة المنورة": "madinah.png",
+    "أمانة محافظة الطائف": "Taif.jpg",
+    "أمانة محافظة نجران": "Najran.jpg",
+    "أمانة منطقة عسير": "assir.jpg"
+  }
 
   const handleTypeserChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-  const selectedValue = e.target.value
-  const logo = municipalityLogos[selectedValue] || ""
+    const selectedValue = e.target.value
+    const logo = municipalityLogos[selectedValue] || ""
 
-  setFormData(prev => ({
-    ...prev,
-    typeser: selectedValue,
-    thelogo: logo,
-  }))
-}
+    setFormData(prev => ({
+      ...prev,
+      typeser: selectedValue,
+      thelogo: logo,
+    }))
+  }
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -117,7 +117,7 @@ export default function EditCertificate() {
 
     try {
       let photoUrl = currentPhotoUrl
-      
+
       if (photo) {
         const newPhotoUrl = await uploadUser(photo, `photo_${id}`)
         if (newPhotoUrl) photoUrl = newPhotoUrl
@@ -130,7 +130,7 @@ export default function EditCertificate() {
       }
 
       const success = await updateCertificate(id as string, updatedData)
-      
+
       if (success) {
         router.push("/certificates")
       } else {
@@ -171,23 +171,23 @@ export default function EditCertificate() {
               <div className="space-y-2">
                 <Label htmlFor="typeser">الأمانة</Label>
                 <select
-  id="typeser"
-  name="typeser"
-  value={formData.typeser}
-  onChange={handleTypeserChange}
-  required
-  className="w-full p-2 border rounded-md text-right"
->
-  <option value="أمانة منطقة الرياض">أمانة منطقة الرياض</option>
-  <option value="أمانة محافظة جدة">أمانة محافظة جدة</option>
-  <option value="أمانة العاصمة المقدسة">أمانة العاصمة المقدسة</option>
-  <option value="أمانة منطقة المدينة المنورة">أمانة منطقة المدينة المنورة</option>
-  <option value="أمانة محافظة الطائف">أمانة محافظة الطائف</option>
-  <option value="أمانة محافظة نجران">أمانة محافظة نجران</option>
-  <option value="أمانة منطقة عسير">أمانة منطقة عسير</option>
-</select>
+                  id="typeser"
+                  name="typeser"
+                  value={formData.typeser}
+                  onChange={handleTypeserChange}
+                  required
+                  className="w-full p-2 border rounded-md text-right"
+                >
+                  <option value="أمانة منطقة الرياض">أمانة منطقة الرياض</option>
+                  <option value="أمانة محافظة جدة">أمانة محافظة جدة</option>
+                  <option value="أمانة العاصمة المقدسة">أمانة العاصمة المقدسة</option>
+                  <option value="أمانة منطقة المدينة المنورة">أمانة منطقة المدينة المنورة</option>
+                  <option value="أمانة محافظة الطائف">أمانة محافظة الطائف</option>
+                  <option value="أمانة محافظة نجران">أمانة محافظة نجران</option>
+                  <option value="أمانة منطقة عسير">أمانة منطقة عسير</option>
+                </select>
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="name">الاسم الكامل</Label>
                 <Input
@@ -287,7 +287,7 @@ export default function EditCertificate() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="issue_date">تاريخ اصدار الشهادة الصحية (هجري)</Label>
+                <Label htmlFor="issue_date">تاريخ اصدار الشهادة الصحية هجري</Label>
                 <Input
                   id="issue_date"
                   name="issue_date"
@@ -300,7 +300,7 @@ export default function EditCertificate() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="expiry_date">تاريخ انتهاء الشهادة الصحية (هجري)</Label>
+                <Label htmlFor="expiry_date">تاريخ انتهاء الشهادة الصحية هجري</Label>
                 <Input
                   id="expiry_date"
                   name="expiry_date"
@@ -313,7 +313,7 @@ export default function EditCertificate() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="issue_date_gregorian">تاريخ إصدار الشهادة (ميلادي)</Label>
+                <Label htmlFor="issue_date_gregorian">تاريخ إصدار الشهادة ميلادي</Label>
                 <Input
                   id="issue_date_gregorian"
                   name="issue_date_gregorian"
@@ -324,7 +324,7 @@ export default function EditCertificate() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="expiry_date_gregorian">تاريخ انتهاء الشهادة (ميلادي)</Label>
+                <Label htmlFor="expiry_date_gregorian">تاريخ انتهاء الشهادة ميلادي</Label>
                 <Input
                   id="expiry_date_gregorian"
                   name="expiry_date_gregorian"

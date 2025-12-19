@@ -130,7 +130,7 @@ export default function CreateCertificate() {
       { value: "أمانة محافظة نجران", label: "أمانة محافظة نجران" },
       { value: "أمانة منطقة عسير", label: "أمانة منطقة عسير" },
       { value: "أمانة الباحة", label: "أمانة الباحة" },
-    
+
     ],
     [],
   )
@@ -154,7 +154,7 @@ export default function CreateCertificate() {
       "أمانة محافظة نجران": "Najran.jpg",
       "أمانة منطقة عسير": "assir.jpg",
       "أمانة الباحة": "amantalbaha.png",
-      
+
     }),
     [],
   )
@@ -183,8 +183,8 @@ export default function CreateCertificate() {
   const handleTypeserChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       const selectedValue = e.target.value
-    //  const logo = municipalityLogos[selectedValue] || ""
-        const logo = "nothing"
+      //  const logo = municipalityLogos[selectedValue] || ""
+      const logo = "nothing"
 
 
 
@@ -436,7 +436,7 @@ export default function CreateCertificate() {
               <FormField
                 id="issue_date"
                 name="issue_date"
-                label="تاريخ اصدار الشهادة الصحية (هجري)"
+                label="تاريخ اصدار الشهادة الصحية هجري"
                 value={formData.issue_date}
                 onChange={handleInputChange}
                 required
@@ -446,7 +446,7 @@ export default function CreateCertificate() {
               <FormField
                 id="expiry_date"
                 name="expiry_date"
-                label="تاريخ انتهاء الشهادة الصحية (هجري)"
+                label="تاريخ انتهاء الشهادة الصحية هجري"
                 value={formData.expiry_date}
                 onChange={handleInputChange}
                 required
@@ -456,7 +456,7 @@ export default function CreateCertificate() {
               <FormField
                 id="issue_date_gregorian"
                 name="issue_date_gregorian"
-                label="تاريخ إصدار الشهادة (ميلادي)"
+                label="تاريخ إصدار الشهادة ميلادي"
                 value={formData.issue_date_gregorian}
                 onChange={handleInputChange}
               />
@@ -464,7 +464,7 @@ export default function CreateCertificate() {
               <FormField
                 id="expiry_date_gregorian"
                 name="expiry_date_gregorian"
-                label="تاريخ انتهاء الشهادة (ميلادي)"
+                label="تاريخ انتهاء الشهادة ميلادي"
                 value={formData.expiry_date_gregorian}
                 onChange={handleInputChange}
               />
