@@ -112,11 +112,11 @@ const CertificateDisplay = React.memo(
           value: certificateData.issue_date_gregorian || "",
         },
         {
-          label: "تاريخ انتهاء الشهادة الصحية هجري",
+          label: "تاريخ نهاية الشهادة الصحية هجري",
           value: certificateData.expiry_date || "",
         },
         {
-          label: "تاريخ انتهاء الشهادة الصحية ميلادي",
+          label: "تاريخ نهاية الشهادة الصحية ميلادي",
           value: certificateData.expiry_date_gregorian || "",
         },
         {
@@ -124,7 +124,7 @@ const CertificateDisplay = React.memo(
           value: certificateData.program_type || "",
         },
         {
-          label: "تاريخ انتهاء البرنامج التثقيفي",
+          label: "تاريخ إنتهاء البرنامج التثقيفى",
           value: certificateData.program_end_date || "",
         },
         {
@@ -132,7 +132,7 @@ const CertificateDisplay = React.memo(
           value: certificateData.license_number || "",
         },
         {
-          label: "اسم المنشأة",
+          label: "إسم المنشأة",
           value: certificateData.facility_name || "",
         },
         {
