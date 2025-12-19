@@ -132,7 +132,7 @@ export function BaladyHeader() {
                       </button>
 
                       <div
-                        className="navbar-collapse collapse show"
+                        className="navbar-collapse collapse"
                         id="navbarSupportedContent"
                         style={{}}
                       >
