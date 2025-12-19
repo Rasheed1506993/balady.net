@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { getCertificateById, type Certificate } from "@/lib/supabase"
 import { BaladyHeader } from "@/components/balady-header"
+import "@/styles/frutiger.css"
 
 // حقل الشهادة
 const CertificateField = React.memo(
@@ -24,7 +25,7 @@ const CertificateField = React.memo(
       <label className="form-group has-float-label">
         <input
           className="form-control text-xs font-noto-light"
-          style={{ fontSize: "10px" }}
+          style={{ fontSize: "14px", color: "rgb(77, 97, 96)" }}
           type="text"
           value={value || ""}
           readOnly
@@ -32,7 +33,7 @@ const CertificateField = React.memo(
         />
         <span
           className="text-xs font-hel-sm"
-          style={{ fontSize: "15px" }}
+          style={{ fontSize: "16px", color: "rgb(72, 78, 86)" }}
         >
           {label}
         </span>
@@ -93,7 +94,7 @@ const CertificateDisplay = React.memo(
       () => [
         { label: "الأمانة", value: certificateData.typeser || "" },
         { label: "البلدية", value: certificateData.municipality || "" },
-        { label: "الاسم", value: certificateData.name || "" },
+        { label: "الإسم", value: certificateData.name || "" },
         { label: "رقم الهوية", value: certificateData.id_number || "" },
         { label: "الجنس", value: certificateData.gender || "" },
         { label: "الجنسية", value: certificateData.nationality || "" },
@@ -103,20 +104,20 @@ const CertificateDisplay = React.memo(
         },
         { label: "المهنة", value: certificateData.profession || "" },
         {
-          label: "تاريخ إصدار الشهادة الصحية (ميلادي)",
-          value: certificateData.issue_date_gregorian || "",
-        },
-        {
-          label: "تاريخ إصدار الشهادة الصحية (هجري)",
+          label: "تاريخ إصدار الشهادة الصحية هجري",
           value: certificateData.issue_date || "",
         },
         {
-          label: "تاريخ انتهاء الشهادة الصحية (ميلادي)",
-          value: certificateData.expiry_date_gregorian || "",
+          label: "تاريخ إصدار الشهادة الصحية ميلادي",
+          value: certificateData.issue_date_gregorian || "",
         },
         {
-          label: "تاريخ انتهاء الشهادة الصحية (هجري)",
+          label: "تاريخ انتهاء الشهادة الصحية هجري",
           value: certificateData.expiry_date || "",
+        },
+        {
+          label: "تاريخ انتهاء الشهادة الصحية ميلادي",
+          value: certificateData.expiry_date_gregorian || "",
         },
         {
           label: "نوع البرنامج التثقيفي",
@@ -147,22 +148,26 @@ const CertificateDisplay = React.memo(
         <section className="page-container">
           <div className="section pt-0 mt-1 mt-md-4">
             <div className="container p-0">
-              <div className="card p-lg-4">
+              <div className="card p-lg-4" style={{
+                borderRadius: '10px',
+                boxShadow: 'rgba(0, 0, 0, 0.05) 0px 4px 4px 0px'
+              }}>
                 <div className="card-body">
                   {/* العنوان */}
                   <div className="row">
                     <div className="col-md-12 center">
                       <div className="sub-heading font-hel">
-                        <h1
+                        <div
                           style={{
                             textAlign: "center",
-                            fontSize: "27px",
-                            fontWeight: "bold",
+                            fontSize: "16px",
+                            fontWeight: "400",
+                            color: "rgb(72, 78, 86)",
                             margin: "20px 0",
                           }}
                         >
-                          شـهادة صحية
-                        </h1>
+                          شهادة صحية
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -524,7 +529,7 @@ div#muneer-action-image-alt { display: none; }
               </a>
 
               <div className="copyright font-noto-light text-sm text-gray-600">
-© 2025 وزارة البلديات والإسكان              </div>
+                © 2025 وزارة البلديات والإسكان              </div>
             </div>
 
             <div className="side-two font-noto-light">

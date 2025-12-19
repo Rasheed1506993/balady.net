@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
+import "@/styles/frutiger.css";
+import "@/styles/menu-interactions.css";
 
 export function BaladyHeader() {
   const [hideNavbarBrandLogo, setHideNavbarBrandLogo] = useState(false);

@@ -1,0 +1,50 @@
+/* Frutiger Font Family */
+
+@font-face {
+  font-family: 'Frutiger';
+  src: url('/fonts/New_fonts/frutiger-cufonfonts-webfont/Frutiger.woff') format('woff'),
+       url('/fonts/New_fonts/frutiger-cufonfonts/Frutiger.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Frutiger';
+  src: url('/fonts/New_fonts/frutiger-cufonfonts-webfont/Frutiger_bold.woff') format('woff'),
+       url('/fonts/New_fonts/frutiger-cufonfonts/Frutiger_bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Apply Frutiger as default font */
+body {
+  font-family: 'Frutiger', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 400;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Frutiger', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 700;
+}
+
+/* Form elements */
+input, textarea, select, label {
+  font-family: 'Frutiger', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+/* Navigation menu items */
+.menu, nav, .navbar {
+  font-family: 'Frutiger', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+/* Main menu items - bold */
+.dropdown-toggle {
+  font-weight: 700;
+}
+
+/* Dropdown menu items - regular */
+.dropdown-menu a {
+  font-weight: 400;
+}
