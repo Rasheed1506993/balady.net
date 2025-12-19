@@ -78,7 +78,7 @@ export default function EditCertificate() {
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
-  const municipalityLogos = {
+  const municipalityLogos: Record<string, string> = {
   "أمانة منطقة الرياض": "riyadh.jpg",
   "أمانة محافظة جدة": "jeddah.jpg",
   "أمانة العاصمة المقدسة": "makah.jpg",

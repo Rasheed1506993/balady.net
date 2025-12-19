@@ -1,0 +1,10 @@
+.tooltip {
+    font-size: 11px;
+    font-family: $text-font-stack;
+}
+
+.bs-tooltip-bottom .arrow::before, .bs-tooltip-auto[x-placement^="bottom"] .arrow::before {
+    bottom: 0;
+    border-width: 0 .3rem .3rem;
+    border-bottom-color: $text-color-black;
+}

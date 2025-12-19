@@ -42,7 +42,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="ar" dir="rtl" className={inter.className}>
+    <html lang="ar" dir="rtl">
       <head>
         {/* تحسين تحميل الخطوط مع preload */}
         <link
@@ -54,9 +54,22 @@ export default function RootLayout({
         />
         <link rel="preload" href="/fonts/Cairo-Regular.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
 
-        {/* تحميل CSS بشكل مباشر */}
-        <link href="/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
-        <link href="/css/app.min.css" rel="stylesheet" type="text/css" />
+        {/* Favicon */}
+        <link rel="icon" type="image/x-icon" href="https://apps.balady.gov.sa/BALADYCDN/Content/images/fav.ico" />
+        <link rel="icon" type="image/png" sizes="16x16" href="https://apps.balady.gov.sa/BALADYCDN/Content/images/fav.png" />
+
+        {/* CSS Files */}
+        <link href="https://apps.balady.gov.sa/BALADYCDN/Content/icons/fontawesome5/css/all.css" rel="stylesheet" type="text/css" />
+        <link href="https://apps.balady.gov.sa/BALADYCDN/Content/plugins/select2/css/select2.min.css" rel="stylesheet" />
+        <link href="https://apps.balady.gov.sa/BALADYCDN/Content/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+        <link href="https://apps.balady.gov.sa/BALADYCDN/Content/css/app.min.css" rel="stylesheet" type="text/css" />
+        <link href="https://apps.balady.gov.sa/BALADYCDN/Content/unified_identity_assets/css/app.min.css" rel="stylesheet" type="text/css" />
+        <link href="https://apps.balady.gov.sa/BALADYCDN/Content/HijriDatePicker/jquery.calendars.picker.css" rel="stylesheet" />
+        <link href="https://apps.balady.gov.sa/BALADYCDN/Content/Validation.css" rel="stylesheet" />
+        <link href="https://apps.balady.gov.sa/BALADYCDN/Content/plugins/DataTables/jquery.dataTables.min.css" rel="stylesheet" />
+        <link href="https://apps.balady.gov.sa/BALADYCDN/Content/plugins/DataTables/Style.css" rel="stylesheet" />
+        <link href="https://apps.balady.gov.sa/BALADYCDN/Content/style.css?v=1" rel="stylesheet" type="text/css" />
+        <link rel="stylesheet" type="text/css" href="https://apps.balady.gov.sa/BALADYCDN/Content/enhancement.css?v=388833" />
 
         {/* تحسين الأداء */}
         <meta name="format-detection" content="telephone=no" />
@@ -76,7 +89,7 @@ export default function RootLayout({
         <link rel="prefetch" href="/dashboard" />
         <link rel="prefetch" href="/create" />
       </head>
-      <body className={inter.className + " performance-optimized navigation-optimized"}>
+      <body className={"loged-user loaded"}>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
@@ -171,6 +184,41 @@ export default function RootLayout({
             })();
           `}
         </Script>
+
+        {/* JavaScript Files - Loaded in order */}
+        <Script src="https://apps.balady.gov.sa/BALADYCDN/Content/js/jquery.min.js" strategy="afterInteractive" />
+        <Script src="https://apps.balady.gov.sa/BALADYCDN/Content/js/bootstrap.bundle.min.js" strategy="afterInteractive" />
+        <Script src="https://apps.balady.gov.sa/BALADYCDN/Content/HijriDatePicker/jquery.plugin.js" strategy="afterInteractive" />
+        <Script src="https://apps.balady.gov.sa/BALADYCDN/Content/HijriDatePicker/jquery.calendars.js" strategy="afterInteractive" />
+        <Script src="https://apps.balady.gov.sa/BALADYCDN/Content/HijriDatePicker/jquery.calendars.plus.js" strategy="afterInteractive" />
+        <Script src="https://apps.balady.gov.sa/BALADYCDN/Content/HijriDatePicker/jquery.calendars.picker.js" strategy="afterInteractive" />
+        <Script src="https://apps.balady.gov.sa/BALADYCDN/Content/HijriDatePicker/jquery.calendars.ummalqura.js" strategy="afterInteractive" />
+        <Script src="https://apps.balady.gov.sa/BALADYCDN/Content/plugins/select2/js/select2.min.js" strategy="afterInteractive" />
+        <Script src="https://apps.balady.gov.sa/BALADYCDN/Content/plugins/select2/js/i18n/ar.js" strategy="afterInteractive" />
+        <Script src="https://apps.balady.gov.sa/BALADYCDN/Content/plugins/parsleyjs/parsley.min.js" strategy="afterInteractive" />
+        <Script src="https://apps.balady.gov.sa/BALADYCDN/Content/plugins/parsleyjs/i18n/ar.js" strategy="afterInteractive" />
+        <Script src="https://apps.balady.gov.sa/BALADYCDN/Content/plugins/DataTables/jquery.dataTables.min.js" strategy="afterInteractive" />
+        <Script src="https://apps.balady.gov.sa/BALADYCDN/Content/health/issue/lib/sweetalert2/sweetalert2.all.min.js" strategy="afterInteractive" />
+        <Script src="https://apps.balady.gov.sa/BALADYCDN/Content/health/issue/Content/js/app.js" strategy="afterInteractive" />
+        <Script src="https://apps.balady.gov.sa/BALADYCDN/Content/unified_identity_assets/js/app.js" strategy="afterInteractive" />
+        <Script src="https://apps.balady.gov.sa/BALADYCDN/Content/startup.js" strategy="afterInteractive" />
+        <Script src="https://apps.balady.gov.sa/BALADYCDN/Content/Message.js" strategy="afterInteractive" />
+        <Script src="https://apps.balady.gov.sa/BALADYCDN/Content/Validation.js" strategy="afterInteractive" />
+        <Script src="https://apps.balady.gov.sa/BALADYCDN/Content/Support.js?v=388833" strategy="afterInteractive" />
+
+        {/* Google Analytics */}
+        <Script async src="https://www.googletagmanager.com/gtag/js?id=G-69XYTDF1T2" strategy="afterInteractive" />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag() { dataLayer.push(arguments); }
+            gtag('js', new Date());
+            gtag('config', 'G-69XYTDF1T2');
+          `}
+        </Script>
+
+        {/* Muneer Loader */}
+        <Script type="module" src="https://muneer.cx/static/v3/js/loader.min.js?cid=7e6f57f5-43a9-4c2b-97bc-bf2ff14b14c7" id="muneer-loader-js" strategy="afterInteractive" />
       </body>
     </html>
   )

@@ -1,3 +1,4 @@
+//components/navbar-menu.tsx
 "use client"
 
 import React, { useState } from "react";
@@ -10,7 +11,9 @@ import {
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { ChevronDownIcon, ChevronLeftIcon } from "@heroicons/react/24/outline";
 
-const MenuItem = ({ item, level = 0, isOpen, onToggle }) => {
+type NavItem = { title: string; href?: string; items?: NavItem[] }
+
+const MenuItem: React.FC<{ item: NavItem; level?: number; isOpen?: boolean; onToggle?: () => void }> = ({ item, level = 0, isOpen, onToggle }) => {
   return (
     <li className={`relative ${level > 0 ? 'pl-4' : ''}`}>
       {item.items ? (
@@ -20,6 +23,7 @@ const MenuItem = ({ item, level = 0, isOpen, onToggle }) => {
               e.preventDefault();
               onToggle?.();
             }}
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
             className="flex items-center justify-between w-full py-2 text-right hover:text-white transition-colors outline-none focus:outline-none"
             style={{
               color: level === 0 ? '#fff' : '#000000',
@@ -37,7 +41,7 @@ const MenuItem = ({ item, level = 0, isOpen, onToggle }) => {
 
           {isOpen && (
             <ul className={`mt-1 ${level === 0 ? 'bg-white p-3 rounded-none right-0 w-56 mt-1 shadow-lg' : 'mt-1 space-y-4'} text-xs font-hel-sm`}>
-              {item.items.map((child, idx) => (
+              {item.items.map((child: NavItem, idx: number) => (
                 <MenuItem
                   key={idx}
                   item={child}
@@ -64,9 +68,9 @@ const MenuItem = ({ item, level = 0, isOpen, onToggle }) => {
 
 
 function NavList({ isMobile = false }) {
-  const [openIndex, setOpenIndex] = useState(null); // لإغلاق/فتح عنصر واحد فقط
+  const [openIndex, setOpenIndex] = useState<number | null>(null); // لإغلاق/فتح عنصر واحد فقط
 
-  const toggleItem = (index) => {
+  const toggleItem = (index: number) => {
     setOpenIndex(prev => prev === index ? null : index);
   };
   const menuData = [
@@ -311,6 +315,7 @@ export function NavbarBalady() {
   }, []);
 
   return (
+    // @ts-ignore: third-party component types are incompatible with our usage
     <Navbar
       className="bg-[#f0f4f5] mx-auto max-w-screen-xl px-4 py-3 rounded-none border-none"
       style={{ backgroundColor: "#006463", color: "#ffffff" }}

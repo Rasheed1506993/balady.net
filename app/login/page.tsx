@@ -51,7 +51,7 @@ export default function LoginPage() {
       if (error) {
         setError(error.message || "فشل تسجيل الدخول. يرجى التحقق من البيانات المدخلة.")
         setIsLoading(false)
-      } else if (data.session) {
+      } else if (data?.session) {
         // تسجيل الدخول نجح والجلسة محفوظة
         router.push("/")
       }
@@ -63,7 +63,7 @@ export default function LoginPage() {
 
   // عرض شاشة التحميل أثناء التحقق من الجلسة
   if (checkingSession) {
-    return <LogoLoading size="large" message="جاري التحقق من الجلسة..." />
+    return <LogoLoading size="lg" message="جاري التحقق من الجلسة..." />
   }
 
   return (

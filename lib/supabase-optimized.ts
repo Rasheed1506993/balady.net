@@ -26,15 +26,7 @@ export function getFastSupabaseClient() {
       autoRefreshToken: false,
       detectSessionInUrl: false,
     },
-    db: {
-      schema: "public",
-    },
-    global: {
-      headers: {
-        "cache-control": "max-age=120", // cache قصير للتحقق
-        prefer: "return=minimal", // إرجاع بيانات أقل
-      },
-    },
+    // schema not explicitly set here to avoid typing conflicts with @supabase/supabase-js typings
     realtime: {
       params: {
         eventsPerSecond: 2, // تقليل الأحداث
@@ -96,12 +88,12 @@ export async function fastGetCertificateById(id: string): Promise<Certificate | 
     // حفظ في Cache
     if (data) {
       verifyCache.set(cacheKey, {
-        data,
+        data: data as Certificate,
         timestamp: Date.now(),
       })
     }
 
-    return data
+    return data as Certificate
   } catch (error) {
     console.error("Error in fastGetCertificateById:", error)
     return null

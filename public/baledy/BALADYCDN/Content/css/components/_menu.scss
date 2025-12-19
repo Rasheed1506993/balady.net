@@ -1,0 +1,26 @@
+.navbar-menu-wrapper {
+  width: 249px;
+  height: auto;
+  border: solid 1px #eeeeee;
+  border-bottom: 0;
+  border-top: 0;
+  background-color: #ffffff;
+  position: relative;
+
+  .nav-link {
+    padding: 0.625rem 1rem;
+    color: $text-color;
+    border-bottom: 1px solid #eeeeee;
+    @include hover {
+      opacity: 0.75;
+    }
+    @include transition();
+
+    i {
+      width: 1.25em;
+      margin-right: 5px;
+      display: inline-block;
+      text-align: center;
+    }
+  }
+}

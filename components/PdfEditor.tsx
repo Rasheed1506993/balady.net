@@ -272,7 +272,11 @@ const PdfEditor = ({ pdfTemplateUrl, certificateData, onComplete }: PdfEditorPro
       if (onComplete) onComplete()
     } catch (error) {
       console.error("❌ خطأ في تعديل ملف PDF:", error)
-      alert(`حدث خطأ أثناء تعديل الشهادة: ${error.message}`)
+      if (error instanceof Error) {
+        alert(`حدث خطأ أثناء تعديل الشهادة: ${error.message}`)
+      } else {
+        alert(`حدث خطأ أثناء تعديل الشهادة: ${String(error)}`)
+      }
       if (onComplete) onComplete()
     }
   }, [pdfTemplateUrl, certificateData, onComplete, loadFont, embedImage, drawRightAlignedText, colors, downloadFile])

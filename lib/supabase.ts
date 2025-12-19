@@ -31,9 +31,7 @@ export function getSupabaseClient() {
       storage: typeof window !== "undefined" ? window.localStorage : undefined,
       storageKey: "balady-auth-token", // مفتاح مخصص للتخزين
     },
-    db: {
-      schema: "public",
-    },
+    // schema omitted to avoid typing conflicts with @supabase/supabase-js typings
     global: {
       headers: {
         "cache-control": "max-age=300", // cache لمدة 5 دقائق
@@ -198,7 +196,7 @@ export async function createCertificate(certificate: Certificate): Promise<Certi
       throw new Error("Supabase client not available")
     }
 
-    const { data, error } = await client.from("certificates").insert([certificate]).select().single()
+    const { data, error } = await client.from("certificates").insert([certificate as any]).select().single()
 
     if (error) {
       console.error("Error creating certificate:", error)
@@ -208,7 +206,7 @@ export async function createCertificate(certificate: Certificate): Promise<Certi
     // تنظيف cache عند إضافة بيانات جديدة
     dataCache.clear()
 
-    return data
+    return data as unknown as Certificate
   } catch (error) {
     console.error("Error in createCertificate:", error)
     return null
@@ -247,10 +245,10 @@ export async function getCertificateById(id: string): Promise<Certificate | null
 
     // حفظ في Cache
     if (data) {
-      saveToCache(cacheKey, data)
+      saveToCache(cacheKey, data as unknown as Certificate)
     }
 
-    return data
+    return data as unknown as Certificate
   } catch (error) {
     console.error("Error in getCertificateById:", error)
     return null
@@ -290,7 +288,7 @@ export async function getAllCertificates(page = 0, limit = 50): Promise<Certific
     // حفظ في Cache
     saveToCache(cacheKey, result)
 
-    return result
+    return result as unknown as import("./supabase").Certificate[]
   } catch (error) {
     console.error("Error in getAllCertificates:", error)
     return []
@@ -352,15 +350,16 @@ export async function deleteCertificate(id: string): Promise<boolean> {
 
     // 2. حذف الملفات من التخزين إذا كانت موجودة
     if (certificate) {
-      const extractFileName = (url: string) => {
+      const extractFileName = (url: string | null | undefined): string | null => {
         if (!url) return null
         const parts = url.split("/")
         return parts[parts.length - 1]
       }
 
-      const filesToDelete = [extractFileName(certificate.photo_url), extractFileName(certificate.qr_code_url)].filter(
-        Boolean,
-      )
+      const filesToDelete = [
+        extractFileName(certificate.photo_url as string | null | undefined),
+        extractFileName(certificate.qr_code_url as string | null | undefined),
+      ].filter((f): f is string => Boolean(f))
 
       if (filesToDelete.length > 0) {
         const { error: storageError } = await client.storage.from("certificates").remove(filesToDelete)

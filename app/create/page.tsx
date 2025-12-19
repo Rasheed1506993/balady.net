@@ -246,7 +246,7 @@ export default function CreateCertificate() {
       }
 
       try {
-        const certificateData = {
+        const certificateData: Partial<import("@/lib/supabase").Certificate> = {
           id: certificateId,
           ...formData,
           photo_url: null,
@@ -286,7 +286,7 @@ export default function CreateCertificate() {
           setStorageError(true)
         }
 
-        const newCertificate = await createCertificate(certificateData)
+        const newCertificate = await createCertificate(certificateData as import("@/lib/supabase").Certificate)
         if (!newCertificate) {
           throw new Error("فشل في إنشاء الشهادة. يرجى المحاولة مرة أخرى.")
         }

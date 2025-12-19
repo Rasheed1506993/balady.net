@@ -67,7 +67,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   }, [pathname, router])
 
   if (loading) {
-    return <LogoLoading size="large"/>
+    return <LogoLoading size="lg"/>
   }
 
   return <>{children}</>

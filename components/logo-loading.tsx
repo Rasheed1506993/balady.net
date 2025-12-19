@@ -31,13 +31,13 @@ export default function LogoLoading({ size = "md", className = "", message = "ج
   const dimensions = getDimensions(size)
 
   return (
-    <div className="flex justify-center items-center h-screen bg-white">
-      <div className="relative flex flex-col items-center justify-center">
+    <div className="flex justify-center items-center h-screen bg-white" suppressHydrationWarning>
+      <div className="relative flex flex-col items-center justify-center" suppressHydrationWarning>
         {/* دائرة نبض شفافة */}
         <span className="absolute inline-flex h-12 w-12 rounded-full bg-grey opacity-75 animate-ping"></span>
 
         {/* الشعار */}
-        <div className="relative">
+        <div className="relative" suppressHydrationWarning>
           <Image
             src="/images/logo.svg"
             alt="logo"

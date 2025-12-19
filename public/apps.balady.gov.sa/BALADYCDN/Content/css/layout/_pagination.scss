@@ -1,0 +1,164 @@
+/*------------------------------------*\
+    #PAGINATION
+\*------------------------------------*/
+.pagination {
+  margin: 0;
+border-radius: 0;
+align-items: center;
+justify-content: center;
+flex-wrap: wrap;
+
+
+    li {
+        margin-right: 10px;
+        display: inline-block;
+
+
+        &.disabled
+        {
+          opacity: .5;
+        }
+
+        a,
+        span {
+          background-color: #f9f9f9;
+          color: $primary;
+          font-size: 16px;
+          font-weight: 600;
+          border: none;
+          text-transform: uppercase;
+          padding: 0;
+          text-align: center;
+          border-radius: 3px;
+          display: inline-block;
+          padding: 10px 15px;
+          min-width: 40px;
+          transition: .3s ease;
+
+            &:hover {
+                background-color: $bg-secondary;
+                color: #fff;
+                border-color: $primary;
+            }
+        }
+
+        .current {
+            background-color: $bg-secondary;
+            color: #fff;
+            border-color: $primary;
+        }
+    }
+
+    .page-item:last-child .page-link ,
+        .page-item:first-child .page-link {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+}
+
+.pagination-nav {
+    .pagination {
+        display: block;
+        margin: 0;
+        border-radius: 0;
+
+        >a {
+            display: none
+        }
+
+        .nav-links {
+
+            a,
+            span {
+
+                background-color: #f9f9f9;
+                color: $primary;
+                font-size: 20px;
+                font-weight: 700;
+                border: none;
+                text-transform: uppercase;
+                padding: 0;
+                text-align: center;
+                border-radius: 3px;
+                display: inline-block;
+                padding: 10px 15px;
+                min-width: 40px;
+                transition: .3s ease;
+
+
+                &:hover {
+                    background-color: $bg-secondary;
+                    color: #fff;
+                    border-color: $primary;
+                }
+            }
+
+            .current {
+              background-color: $bg-secondary;
+              color: #fff;
+              border-color: $primary;
+            }
+
+        }
+
+    }
+}
+
+.pagination-buttons {
+
+    .next-page,
+    .prev-page {
+        a {
+            background-color: $primary;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            width: 170px;
+            height: 50px;
+            line-height: 50px;
+            text-align: center;
+            display: inline-block;
+            border-radius: 3px;
+
+            &:hover {
+                background-color: darken($primary, 10%);
+                color: #fff;
+            }
+
+        }
+
+    }
+
+    .next-page {
+        text-align: right;
+    }
+
+}
+
+.page-link {
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 25px;
+    margin-bottom: 16px;
+    color: $text-color;
+    background-color: transparent;
+    border: none;
+    padding: 0;
+
+    &:hover {
+        background-color: transparent;
+        border: none;
+        color: $primary;
+        cursor: auto;
+    }
+
+    a {
+        color: $primary;
+
+        &:hover {
+            color: $primary
+        }
+    }
+}

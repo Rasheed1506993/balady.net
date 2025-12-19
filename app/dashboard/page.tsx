@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, Users, Calendar, FileCheck, AlertCircle, Loader2, Trash2 } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { supabase, deleteCertificate } from "@/lib/supabase"
+import { supabase, deleteCertificate, getSupabaseClient } from "@/lib/supabase"
 import {
   Dialog,
   DialogContent,
@@ -46,8 +46,11 @@ export default function DashboardPage() {
       setIsLoading(true)
       setError(null)
 
+      const client = getSupabaseClient()
+      if (!client) throw new Error("Supabase client not available")
+
       // الحصول على إجمالي عدد الشهادات
-      const { count: totalCount, error: countError } = await supabase
+      const { count: totalCount, error: countError } = await client
         .from("certificates")
         .select("*", { count: "exact", head: true })
 
@@ -57,7 +60,7 @@ export default function DashboardPage() {
       const currentDate = new Date()
       const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
 
-      const { count: monthlyCount, error: monthlyError } = await supabase
+      const { count: monthlyCount, error: monthlyError } = await client
         .from("certificates")
         .select("*", { count: "exact", head: true })
         .gte("created_at", firstDayOfMonth.toISOString())
@@ -65,18 +68,18 @@ export default function DashboardPage() {
       if (monthlyError) throw monthlyError
 
       // الحصول على عدد المهن الفريدة
-      const { data: professionsData, error: professionsError } = await supabase
+      const { data: professionsData, error: professionsError } = await client
         .from("certificates")
         .select("profession")
         .limit(1000)
 
       if (professionsError) throw professionsError
 
-      const uniqueProfessions = new Set(professionsData.map((item) => item.profession)).size
+      const uniqueProfessions = new Set((professionsData as any[]).map((item: any) => item.profession)).size
 
       // الحصول على الشهادات التي ستنتهي قريباً (تقريبي - نظراً لأن التواريخ مخزنة كنصوص)
       // في تطبيق حقيقي، يجب تخزين التواريخ بتنسيق مناسب للمقارنة
-      const { count: expiringCount, error: expiringError } = await supabase
+      const { count: expiringCount, error: expiringError } = await client
         .from("certificates")
         .select("*", { count: "exact", head: true })
         .ilike("expiry_date", `%${currentDate.getFullYear()}%`)
@@ -84,7 +87,7 @@ export default function DashboardPage() {
       if (expiringError) throw expiringError
 
       // الحصول على أحدث الشهادات
-      const { data: recentData, error: recentError } = await supabase
+      const { data: recentData, error: recentError } = await client
         .from("certificates")
         .select("*")
         .order("created_at", { ascending: false })

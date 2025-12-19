@@ -1,0 +1,85 @@
+// -----------------------------------------------------------------------------
+// This file contains all application-wide Sass mixins.
+// -----------------------------------------------------------------------------
+
+// print font size  px and rem
+@mixin fontSize($size) {
+ font-size: $size; //Fallback in px
+ font-size: calculateRem($size);
+}
+
+// disable focus input
+@mixin no-focus() {
+  &:focus {
+    color: $input-focus-color;
+    background-color: $input-focus-bg;
+    border-color: $input-focus-border-color;
+    outline: 0;
+  }
+}
+
+
+
+@mixin hover {
+  &:hover { @content; }
+}
+
+@mixin hover-focus {
+  &:hover,
+  &:focus {
+    @content;
+  }
+}
+
+@mixin plain-hover-focus {
+  &,
+  &:hover,
+  &:focus {
+    @content;
+  }
+}
+
+@mixin hover-focus-active {
+  &:hover,
+  &:focus,
+  &:active {
+    @content;
+  }
+}
+
+
+ 
+
+ @mixin rounded( $bd ){
+   border-radius: $bd ;
+ }
+
+// Media Query
+@mixin minMedia($width) {
+ @media all and (min-width: $width) {
+   @content;
+ }
+}
+
+
+// Media Query
+@mixin maxMedia($width) {
+ @media all and (max-width: $width) {
+   @content;
+ }
+}
+
+
+
+// Media Query between
+@mixin mediaBetween($min-width , $max-width) {
+ @media all and (min-width: $min-width) and (max-width: $max-width) {
+   @content;
+ }
+}
+
+
+// stylelint-disable property-blacklist
+@mixin transition($transition...) {
+ transition: $transition;
+}

@@ -59,7 +59,7 @@ const CertificateCard = memo(
       setIsDialogOpen(false)
     }, [certificate.id, certificate.name, onDelete])
 
-    const isCurrentlyDeleting = isDeleting && certificate.id
+    const isCurrentlyDeleting = Boolean(isDeleting && certificate.id)
 
     return (
       <Card className="overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 will-change-transform">

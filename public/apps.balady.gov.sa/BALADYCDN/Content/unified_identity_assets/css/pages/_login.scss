@@ -1,0 +1,124 @@
+.login-container-bg {
+  background-image: url("../images/login-bg.svg");
+  background-size: cover;
+  color: white;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.logo-container {
+  position: relative;
+  text-align: center;
+}
+
+.center-container {
+  width: 50%;
+  max-width: 800px;
+  margin: auto;
+  background: #fff;
+  padding: 80px;
+  border-radius: 12px;
+
+  @media (max-width: 1023px) {
+    width: 80%;
+  }
+  @media (max-width: 767px) {
+    width: 90%;
+padding: 30px;
+  }
+}
+
+.center-h {
+  display: flex;
+  align-items: center;
+  height: 100vh;
+}
+
+.has-float-label {
+  display: block;
+  position: relative;
+}
+
+.login-container-bg {
+  z-index: -1;
+}
+
+
+.logo-container img.logo {
+  height: 100px;
+  margin: auto;
+}
+
+.center-container {
+  .btn-custom {
+    color: #fff;
+    background: $primary;
+    border: 1px solid $primary;
+
+    &:hover {
+      background: #fff;
+      color: $primary;
+    }
+  }
+}
+
+
+.form-cont h6 {
+    font-weight: 700;
+    font-size: 18px;
+    margin-bottom: 2rem;
+}
+
+.form-cont {
+    margin-top: 3rem;
+}
+
+
+
+/*********/
+.login-options {
+
+  a {
+    border: 1px solid #d7d7d7;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-radius: .35rem;
+    text-decoration: none;
+    @include transition(.3s all);
+
+
+    &:hover
+    {
+      background: $bg-light-grey;
+      border-color: $bg-light-grey;
+    }
+
+}
+
+
+.sub-title {
+      @include fontSize(14px);
+    opacity: 0.7;
+    display: block;
+    color: $text-color-black;
+}
+
+.title {
+    font-weight: 700;
+    color: $text-color-black;
+    padding-bottom: 3px;
+    display: block;
+}
+
+ .item-img {
+    background: #ffffff;
+    padding: 5px;
+    border-radius: 6px;
+}
+
+
+}

@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Eye, ArrowLeft, Search, AlertCircle, Loader2 } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { supabase, type Certificate } from "@/lib/supabase"
+import { supabase, type Certificate, getSupabaseClient } from "@/lib/supabase"
 
 // تحسين: مكون بطاقة النتيجة محسن
 const SearchResultCard = ({ certificate }: { certificate: Certificate }) => (
@@ -113,7 +113,10 @@ export default function SearchPage() {
         const controller = new AbortController()
         const timeoutId = setTimeout(() => controller.abort(), 10000) // timeout بعد 10 ثواني
 
-        const { data, error } = await supabase
+        const client = getSupabaseClient()
+        if (!client) throw new Error("Supabase client not available")
+
+        const { data, error } = await client
           .from("certificates")
           .select("*")
           .ilike(searchType, `%${trimmedSearchTerm}%`)
@@ -126,7 +129,7 @@ export default function SearchPage() {
           throw error
         }
 
-        setSearchResults(data || [])
+        setSearchResults((data as unknown as import("@/lib/supabase").Certificate[]) || [])
       } catch (err: any) {
         console.error("Error searching certificates:", err)
         if (err.name === "AbortError") {
