@@ -186,6 +186,7 @@ export default function EditCertificate() {
                   <option value="أمانة محافظة الطائف">أمانة محافظة الطائف</option>
                   <option value="أمانة محافظة نجران">أمانة محافظة نجران</option>
                   <option value="أمانة منطقة عسير">أمانة منطقة عسير</option>
+                   <option value="أمانة الباحة">أمانة الباحة</option>
                 </select>
               </div>
 
