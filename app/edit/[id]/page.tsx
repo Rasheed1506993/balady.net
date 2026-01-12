@@ -85,7 +85,8 @@ export default function EditCertificate() {
     "أمانة منطقة المدينة المنورة": "madinah.png",
     "أمانة محافظة الطائف": "Taif.jpg",
     "أمانة محافظة نجران": "Najran.jpg",
-    "أمانة منطقة عسير": "assir.jpg"
+    "أمانة منطقة عسير": "assir.jpg",
+    "أمانة الباحة": "amantalbaha.png"
   }
 
   const handleTypeserChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
